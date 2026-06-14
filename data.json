@@ -1,0 +1,228 @@
+{
+  "v": 2,
+  "savedAt": "2026-06-14T06:45:00.379Z",
+  "results": {
+    "M1": {
+      "hs": {
+        "shots": 16,
+        "sot": 4,
+        "poss": 61,
+        "passes": 520,
+        "passpct": 90,
+        "fouls": 12,
+        "yellow": 1,
+        "red": 1,
+        "offside": 1,
+        "corner": 3,
+        "xg": 1.46
+      },
+      "as": {
+        "shots": 3,
+        "sot": 2,
+        "poss": 39,
+        "passes": 334,
+        "passpct": 81,
+        "fouls": 11,
+        "yellow": 2,
+        "red": 2,
+        "offside": 1,
+        "corner": 1,
+        "xg": 0.09
+      },
+      "hg": 2,
+      "ag": 0
+    },
+    "M2": {
+      "hs": {
+        "shots": 15,
+        "sot": 6,
+        "poss": 61,
+        "passes": 541,
+        "passpct": 87,
+        "fouls": 9,
+        "yellow": 1,
+        "red": 0,
+        "offside": 2,
+        "corner": 4,
+        "xg": 2.3
+      },
+      "as": {
+        "shots": 7,
+        "sot": 4,
+        "poss": 39,
+        "passes": 327,
+        "passpct": 70,
+        "fouls": 16,
+        "yellow": 0,
+        "red": 0,
+        "offside": 2,
+        "corner": 5,
+        "xg": 0.83
+      },
+      "hg": 2,
+      "ag": 1
+    },
+    "M3": {
+      "hs": {
+        "shots": 13,
+        "sot": 4,
+        "poss": 61,
+        "passes": 421,
+        "passpct": 74,
+        "fouls": 10,
+        "yellow": 2,
+        "red": 0,
+        "offside": 1,
+        "corner": 9,
+        "xg": 1.23
+      },
+      "as": {
+        "shots": 8,
+        "sot": 3,
+        "poss": 39,
+        "passes": 271,
+        "passpct": 63,
+        "fouls": 20,
+        "yellow": 3,
+        "red": 0,
+        "offside": 0,
+        "corner": 4,
+        "xg": 0.98
+      },
+      "hg": 1,
+      "ag": 1
+    },
+    "M4": {
+      "hs": {
+        "shots": 16,
+        "sot": 6,
+        "poss": 65,
+        "passes": 598,
+        "passpct": 85,
+        "fouls": 13,
+        "yellow": 1,
+        "red": 0,
+        "offside": 2,
+        "corner": 3,
+        "xg": 1.34
+      },
+      "as": {
+        "shots": 9,
+        "sot": 1,
+        "poss": 35,
+        "passes": 320,
+        "passpct": 72,
+        "fouls": 17,
+        "yellow": 5,
+        "red": 0,
+        "offside": 1,
+        "corner": 1,
+        "xg": 0.47
+      },
+      "hg": 4,
+      "ag": 1
+    },
+    "M5": {
+      "hs": {
+        "shots": 6,
+        "sot": 3,
+        "poss": 32,
+        "passes": 278,
+        "passpct": 72,
+        "fouls": 12,
+        "yellow": 2,
+        "red": 0,
+        "offside": 0,
+        "corner": 3,
+        "xg": 0.6
+      },
+      "as": {
+        "shots": 26,
+        "sot": 7,
+        "poss": 68,
+        "passes": 576,
+        "passpct": 91,
+        "fouls": 11,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 10,
+        "xg": 3.2
+      },
+      "hg": 1,
+      "ag": 1
+    },
+    "M6": {
+      "hs": {
+        "shots": 12,
+        "sot": 5,
+        "poss": 51,
+        "passes": 514,
+        "passpct": 87,
+        "fouls": 16,
+        "yellow": 2,
+        "red": 0,
+        "offside": 0,
+        "corner": 6,
+        "xg": 1.26
+      },
+      "as": {
+        "shots": 14,
+        "sot": 3,
+        "poss": 49,
+        "passes": 486,
+        "passpct": 86,
+        "fouls": 14,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 2,
+        "xg": 1.36
+      },
+      "hg": 1,
+      "ag": 1
+    },
+    "M7": {
+      "hs": {
+        "shots": 15,
+        "sot": 2,
+        "poss": 54,
+        "passes": 431,
+        "passpct": 85,
+        "fouls": 23,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 4,
+        "xg": 1.04
+      },
+      "as": {
+        "shots": 9,
+        "sot": 2,
+        "poss": 46,
+        "passes": 374,
+        "passpct": 82,
+        "fouls": 21,
+        "yellow": 3,
+        "red": 0,
+        "offside": 1,
+        "corner": 3,
+        "xg": 1.05
+      },
+      "hg": 0,
+      "ag": 1
+    }
+  },
+  "adj": {
+    "阿根廷": 0,
+    "法國": 0,
+    "美國": 0,
+    "巴拉圭": 0,
+    "加拿大": 0,
+    "波赫": 0,
+    "卡達": 0,
+    "瑞士": 0,
+    "巴西": 0,
+    "摩洛哥": 0
+  }
+}

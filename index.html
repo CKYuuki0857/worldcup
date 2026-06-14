@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 世足戰情室 V3 · FIFA基準 × xG疊加</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1411;--ink-2:#0F1A15;--surface:#12211A;--surface-2:#16271E;
+    --line:rgba(232,237,233,.09);--line-strong:rgba(232,237,233,.16);
+    --chalk:#E8EDE9;--muted:#7E928A;--muted-2:#5B6E66;
+    --home:#00D26A;--home-dim:rgba(0,210,106,.12);
+    --away:#FFB020;--away-dim:rgba(255,176,32,.12);
+    --base:#4FB0FF;--base-dim:rgba(79,176,255,.14);
+    --draw:#6C7B73;--r:13px;
+  }
+  *{box-sizing:border-box}html,body{margin:0}
+  body{background:radial-gradient(1200px 600px at 82% -10%,rgba(0,210,106,.06),transparent 60%),
+    radial-gradient(900px 500px at 0% 110%,rgba(255,176,32,.05),transparent 55%),var(--ink);
+    color:var(--chalk);font-family:"Inter",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:22px 16px 60px}
+  .wrap{max-width:1140px;margin:0 auto}
+
+  header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--home);margin:0 0 8px;display:flex;align-items:center;gap:9px}
+  .eyebrow::before{content:"";width:24px;height:1px;background:var(--home)}
+  h1{font-family:"Oswald",sans-serif;font-weight:700;font-size:clamp(26px,5vw,44px);line-height:.98;margin:0;text-transform:uppercase}
+  h1 .slash{color:var(--away)} h1 .pro{color:var(--base);font-size:.55em;vertical-align:super}
+  .savebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .status{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted-2)} .status b{color:var(--home)}
+
+  .layers{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px;font-family:"IBM Plex Mono",monospace;font-size:11px}
+  .layers .lay{display:flex;align-items:center;gap:6px;background:var(--ink-2);border:1px solid var(--line);border-radius:8px;padding:5px 10px;color:var(--muted)}
+  .layers .lay .d{width:8px;height:8px;border-radius:2px}
+  .layers .op{color:var(--muted-2);align-self:center}
+
+  .tabs{display:flex;gap:4px;background:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:4px;margin:0 0 20px;overflow-x:auto}
+  .tabs button{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.04em;white-space:nowrap;background:none;border:none;color:var(--muted);padding:9px 18px;border-radius:999px;cursor:pointer;transition:.15s}
+  .tabs button.on{background:var(--home);color:#04150C;font-weight:600}
+  .tabs button:focus-visible{outline:2px solid var(--home);outline-offset:2px}
+
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.03em;border-radius:9px;padding:9px 14px;cursor:pointer;border:1px solid var(--line-strong);background:var(--ink-2);color:var(--chalk);transition:.15s}
+  .btn:hover{border-color:var(--muted)}.btn:active{transform:translateY(1px)}
+  .btn:focus-visible{outline:2px solid var(--home);outline-offset:2px}
+  .btn.primary{background:var(--home);color:#04150C;border-color:var(--home);font-weight:600}
+  .btn.ghost{background:transparent}.btn.sm{padding:6px 11px;font-size:11px}
+
+  .panel{display:none}.panel.on{display:block}
+
+  /* fixtures */
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .filters button{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--ink-2);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .filters button.on{border-color:var(--home);color:var(--home)}
+  .daygroup{margin-bottom:22px}
+  .dayhdr{font-family:"Oswald",sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--muted);padding:0 2px 8px;border-bottom:1px solid var(--line);margin-bottom:10px;display:flex;justify-content:space-between}
+  .dayhdr .dn{color:var(--muted-2);font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:400}
+  .match{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+  .mrow{display:grid;grid-template-columns:62px 1fr auto;gap:12px;align-items:center;padding:12px 14px}
+  .mtag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted-2);line-height:1.35}
+  .mtag b{color:var(--away);display:block;font-size:11px}
+  .mteams{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-family:"Oswald",sans-serif;font-weight:500;font-size:17px}
+  .mteams .sep{color:var(--muted-2);font-size:12px;font-family:"IBM Plex Mono",monospace}
+  .mteams .sc{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--home);font-size:16px;padding:1px 8px;background:var(--home-dim);border-radius:6px}
+  .mteams .rk{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted-2);font-weight:400}
+  .mright{display:flex;align-items:center;gap:10px;justify-self:end}
+  .pred{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);text-align:right;line-height:1.5;min-width:150px}
+  .pred .pa{color:var(--home)}.pred .pb{color:var(--away)}.pred .pd{color:var(--draw)}
+  .pred .sl{color:var(--chalk);font-weight:600}
+  .pred .src{font-size:9.5px;letter-spacing:.02em}
+  .pred .src.b{color:var(--base)}.pred .src.o{color:var(--home)}
+  .xgline{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted-2);text-align:right}
+  .okmark{font-family:"IBM Plex Mono",monospace;font-size:11px}.okmark.y{color:var(--home)}.okmark.n{color:var(--away)}
+  .pbar{display:flex;height:5px;border-radius:3px;overflow:hidden;background:var(--ink);margin-top:5px}
+  .pbar>div{transition:width .4s ease}.pbar .a{background:var(--home)}.pbar .d{background:var(--draw)}.pbar .b{background:var(--away)}
+
+  .editor{border-top:1px solid var(--line);padding:14px;background:var(--surface);display:none}.editor.open{display:block}
+  .ehd{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}
+  .ehd .tn{font-family:"Oswald",sans-serif;font-weight:600;font-size:16px;text-transform:uppercase}
+  .ehd .h{color:var(--home)}.ehd .a{color:var(--away)}
+  .egrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .ecol{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px}
+  .ef{display:flex;flex-direction:column;gap:3px}.ef.score{grid-column:1/-1}
+  .ef label{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
+  .ef label .d{color:var(--home);font-size:8.5px}.a-col .ef label .d{color:var(--away)}
+  .ef input{background:var(--ink);border:1px solid var(--line);border-radius:7px;color:var(--chalk);font-family:"IBM Plex Mono",monospace;font-size:14px;padding:7px 9px;width:100%}
+  .ef input:focus{outline:none;border-color:var(--home)}.ef.score input{font-size:18px;text-align:center;border-color:var(--line-strong)}
+  .eact{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+  .ehint{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted-2)}
+
+  .secthd{font-family:"Oswald",sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:15px;color:var(--muted);margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .secthd .sub{font-weight:400;text-transform:none;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted-2)}
+  .groupgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .gtable{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .gtable .gh{font-family:"Oswald",sans-serif;font-weight:600;font-size:14px;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--surface);display:flex;justify-content:space-between}
+  .gtable .gh small{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted-2);font-weight:400}
+  table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+  th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:center}
+  th{color:var(--muted-2);font-weight:500;font-size:10px;letter-spacing:.03em;text-transform:uppercase}
+  td{color:var(--chalk)}td.tm{text-align:left;font-family:"Oswald",sans-serif;font-size:13px;font-weight:500}
+  tr.qual td{background:var(--home-dim)}tr.qual td.tm{color:var(--home)}tr.q3 td{background:rgba(255,176,32,.06)}
+  td.pts{color:var(--home);font-weight:600}
+  .tier{display:inline-block;width:18px;height:18px;line-height:18px;border-radius:5px;font-size:11px;font-weight:700;font-family:"Oswald",sans-serif}
+  .tier.S{background:var(--home);color:#04150C}.tier.A{background:var(--home-dim);color:var(--home)}
+  .tier.B{background:rgba(255,176,32,.14);color:var(--away)}.tier.C{background:rgba(232,237,233,.07);color:var(--muted)}
+  .netbar{display:inline-block;height:7px;border-radius:4px;vertical-align:middle}
+  .netbar.pos{background:var(--home)}.netbar.neg{background:var(--away)}
+  .adjin{width:50px;background:var(--ink);border:1px solid var(--line);border-radius:6px;color:var(--away);font-family:"IBM Plex Mono",monospace;font-size:11px;padding:4px 5px;text-align:center}
+  .adjin:focus{outline:none;border-color:var(--away)}
+  .wbar{display:inline-flex;width:54px;height:9px;border-radius:3px;overflow:hidden;vertical-align:middle;border:1px solid var(--line)}
+  .wbar .wb{background:var(--base)}.wbar .wo{background:var(--home)}
+
+  /* calc */
+  .calc{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+  .pickrow{display:grid;grid-template-columns:1fr 50px 1fr;gap:10px;align-items:end;margin-bottom:18px}
+  .pick label{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);display:block;margin-bottom:5px}
+  .pick.h label{color:var(--home)}.pick.a label{color:var(--away)}
+  select{width:100%;background:var(--ink);border:1px solid var(--line-strong);border-radius:9px;color:var(--chalk);font-family:"Oswald",sans-serif;font-size:16px;padding:9px 11px;cursor:pointer}
+  select:focus{outline:none;border-color:var(--home)}
+  .vsmid{text-align:center;font-family:"Oswald",sans-serif;color:var(--muted);font-size:14px;padding-bottom:10px}
+  .verdict{font-family:"Oswald",sans-serif;font-weight:600;font-size:clamp(18px,3vw,26px);text-transform:uppercase;margin:4px 0}
+  .verdict .pct{color:var(--home)}.verdict.flip .pct{color:var(--away)}
+  .scorebig{font-family:"Oswald",sans-serif;font-weight:700;font-size:34px;color:var(--chalk);margin:2px 0 2px}
+  .scorebig small{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);font-weight:400;display:block;margin-top:2px}
+  .bigbar{display:flex;height:26px;border-radius:7px;overflow:hidden;background:var(--ink);border:1px solid var(--line);margin-top:10px}
+  .bigbar>div{transition:width .5s cubic-bezier(.22,1,.36,1)}
+  .bigbar .pa{background:linear-gradient(180deg,#00E676,#00B85C)}
+  .bigbar .pd{background:repeating-linear-gradient(45deg,#3a463f,#3a463f 6px,#33403a 6px,#33403a 12px)}
+  .bigbar .pb{background:linear-gradient(180deg,#FFC247,#F6A415)}
+  .legend{display:flex;justify-content:space-between;margin-top:11px;gap:8px}
+  .lg{display:flex;flex-direction:column;gap:2px;flex:1}
+  .lg .t{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}
+  .lg .dot{width:7px;height:7px;border-radius:2px}
+  .lg .v{font-family:"Oswald",sans-serif;font-weight:700;font-size:26px;line-height:1}
+  .lg.a .v{color:var(--home)}.lg.d .v{color:var(--draw)}.lg.b{align-items:flex-end}.lg.b .v{color:var(--away)}.lg.b .t{flex-direction:row-reverse}
+
+  .breakdown{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+  .brow{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+  .brow .bk{color:var(--muted);display:flex;align-items:center;gap:6px}
+  .brow .bk .d{width:8px;height:8px;border-radius:2px}
+  .brow .bv{color:var(--chalk)}
+  .brow .bv .gv{color:var(--muted-2)}
+  .adjwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+  .adjctl label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:4px}
+  .adjctl label b{color:var(--away)}
+  .adjctl input[type=range]{width:100%;accent-color:var(--away)}
+  .topscores{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .ts{font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--ink);border:1px solid var(--line);border-radius:7px;padding:5px 9px;color:var(--muted)}
+  .ts b{color:var(--chalk)}
+  .gvm{color:var(--muted-2)}
+  .mktbox{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  .mkthd{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--chalk);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .mkt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+  .mkt label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);display:block;margin-bottom:4px}
+  .mkt input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:8px;color:var(--chalk);font-family:"IBM Plex Mono",monospace;font-size:15px;padding:8px 10px}
+  .mkt input:focus{outline:none;border-color:var(--base)}
+  .mktout{font-family:"IBM Plex Mono",monospace;font-size:12px}
+  .mktrow{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+  .mktrow span:first-child{color:var(--chalk)}
+  .mktrow .mod{color:var(--home)}.mktrow .mkt2{color:var(--base)}
+  .mktrow .gap{text-align:right}.mktrow .gap.big{color:var(--away);font-weight:600}
+
+  details.note{margin-top:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--ink-2)}
+  details.note summary{cursor:pointer;list-style:none;padding:15px 18px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);display:flex;gap:10px}
+  details.note summary::-webkit-details-marker{display:none}
+  details.note summary::before{content:"▸";color:var(--home)}details.note[open] summary::before{content:"▾"}
+  .note-body{padding:0 20px 18px;font-size:13px;color:#B9C6BF;line-height:1.65}
+  .note-body code{font-family:"IBM Plex Mono",monospace;background:var(--ink);padding:2px 5px;border-radius:5px;color:var(--home);font-size:12px}
+  .note-body h3{font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.05em;font-size:12.5px;color:var(--chalk);margin:16px 0 5px}
+  .note-body ul{margin:5px 0;padding-left:18px}.note-body li{margin:3px 0}
+  .note-body .warn{color:var(--away)}
+  .empty{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted-2);padding:14px 2px}
+  footer{margin-top:26px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted-2);letter-spacing:.04em}
+
+  @media(max-width:780px){
+    .groupgrid,.adjwrap{grid-template-columns:1fr}
+    .mrow{grid-template-columns:54px 1fr;gap:8px}.mright{grid-column:1/-1;justify-self:start;margin-top:6px}.pred{text-align:left}
+    .pickrow{grid-template-columns:1fr;gap:6px}.vsmid{display:none}
+    .brow{grid-template-columns:90px 1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="eyebrow">FIFA基準 · 真xG觀測 · 自動主場/休息 · 卜瓦松推估比分</p>
+      <h1>世足戰情室<span class="pro">V3</span> <span class="slash">2026</span></h1>
+    </div>
+    <div class="savebar">
+      <span class="status" id="status">已就緒</span>
+      <button class="btn sm" id="btn-export">匯出存檔</button>
+      <button class="btn sm ghost" id="btn-import">載入存檔</button>
+      <button class="btn sm ghost" id="btn-reset">清空實測</button>
+      <input type="file" id="file-import" accept=".json" hidden>
+    </div>
+  </header>
+
+  <div class="layers">
+    <span class="lay"><span class="d" style="background:var(--base)"></span>歷史基準 · FIFA積分</span>
+    <span class="op">＋</span>
+    <span class="lay"><span class="d" style="background:var(--home)"></span>觀測修正 · 你的xG實測</span>
+    <span class="op">＋</span>
+    <span class="lay"><span class="d" style="background:var(--away)"></span>附加 · 自動(主場/休息)＋手動</span>
+    <span class="op">＝</span>
+    <span class="lay">勝率 ＋ 推估比分</span>
+  </div>
+
+  <nav class="tabs">
+    <button data-tab="fixtures" class="on">賽程 · 勝率比分</button>
+    <button data-tab="standings">積分榜</button>
+    <button data-tab="power">實力榜</button>
+    <button data-tab="calc">推演室</button>
+  </nav>
+
+  <section class="panel on" id="p-fixtures">
+    <div class="filters" id="fxfilters">
+      <button data-f="all" class="on">全部</button>
+      <button data-f="todo">未賽</button><button data-f="done">已賽</button>
+      <button data-f="A">A</button><button data-f="B">B</button><button data-f="C">C</button>
+      <button data-f="D">D</button><button data-f="E">E</button><button data-f="F">F</button>
+      <button data-f="G">G</button><button data-f="H">H</button><button data-f="I">I</button>
+      <button data-f="J">J</button><button data-f="K">K</button><button data-f="L">L</button>
+    </div>
+    <div id="fxlist"></div>
+  </section>
+
+  <section class="panel" id="p-standings">
+    <h2 class="secthd">小組積分榜 <span class="sub">綠底＝前 2 晉級　黃底＝第三名（搶 8 個最佳第三）</span></h2>
+    <div class="groupgrid" id="standgrid"></div>
+  </section>
+
+  <section class="panel" id="p-power">
+    <h2 class="secthd">實力榜 · 綜合強度 <span class="sub">第 0 天用 FIFA 積分排，輸入實測後自動疊加修正</span></h2>
+    <div class="gtable">
+      <table><thead><tr>
+        <th>#</th><th>級</th><th class="tm" style="text-align:left">隊伍</th><th>組</th>
+        <th>FIFA</th><th>場</th><th>攻xG</th><th>守xG</th><th>淨值</th>
+        <th>資料權重</th><th>附加±</th><th>戰績</th>
+      </tr></thead><tbody id="powerbody"></tbody></table>
+    </div>
+    <p class="ehint" style="margin-top:10px">「附加±」是你的輔助情報（每場進球修正，例：王牌停賽填 -0.4、狀態火熱填 +0.3）。改完按 Enter，全表與所有勝率重算。資料權重藍＝FIFA基準佔比、綠＝你的實測佔比。</p>
+  </section>
+
+  <section class="panel" id="p-calc">
+    <div class="calc">
+      <div class="pickrow">
+        <div class="pick h"><label>甲隊（主）</label><select id="pick_h"></select></div>
+        <div class="vsmid">VS</div>
+        <div class="pick a"><label>乙隊（客）</label><select id="pick_a"></select></div>
+      </div>
+
+      <p class="verdict" id="c_verdict">—</p>
+      <div class="scorebig" id="c_score">—<small id="c_score_sub"></small></div>
+      <div class="topscores" id="c_tops"></div>
+      <div class="topscores" id="c_total" style="margin-top:6px"></div>
+
+      <div class="bigbar"><div class="pa" id="cb_a" style="width:33%"></div><div class="pd" id="cb_d" style="width:34%"></div><div class="pb" id="cb_b" style="width:33%"></div></div>
+      <div class="legend">
+        <div class="lg a"><div class="t"><span class="dot" style="background:var(--home)"></span><span id="cl_a">甲勝</span></div><div class="v" id="cp_a">—</div></div>
+        <div class="lg d"><div class="t"><span class="dot" style="background:var(--draw)"></span>平手</div><div class="v" id="cp_d">—</div></div>
+        <div class="lg b"><div class="t"><span class="dot" style="background:var(--away)"></span><span id="cl_b">乙勝</span></div><div class="v" id="cp_b">—</div></div>
+      </div>
+
+      <div class="breakdown">
+        <div class="brow"><span class="bk"><span class="d" style="background:var(--base)"></span>① 歷史基準</span><span class="bv" id="br_base">—</span></div>
+        <div class="brow"><span class="bk"><span class="d" style="background:var(--home)"></span>② 觀測修正</span><span class="bv" id="br_obs">—</span></div>
+        <div class="brow"><span class="bk"><span class="d" style="background:var(--away)"></span>③ 附加判斷</span>
+          <div class="adjwrap">
+            <div class="adjctl"><label><span id="adj_h_lab">甲</span> <b id="adj_h_val">0.0</b></label><input type="range" id="adj_h" min="-1" max="1" step="0.1" value="0"></div>
+            <div class="adjctl"><label><span id="adj_a_lab">乙</span> <b id="adj_a_val">0.0</b></label><input type="range" id="adj_a" min="-1" max="1" step="0.1" value="0"></div>
+          </div>
+        </div>
+        <div class="brow"><span class="bk" style="color:var(--chalk)">＝ 最終 λ</span><span class="bv" id="br_final" style="color:var(--chalk);font-weight:600">—</span></div>
+      </div>
+      <div class="ehint" id="c_auto" style="margin-top:8px"></div>
+      <div class="mktbox">
+        <div class="mkthd">📊 市場對照　<span class="gvm">填 Polymarket 等盤口的勝率(%)，比對你與市場的背離</span></div>
+        <div class="mkt">
+          <div><label>主勝 %</label><input id="mk_h" type="number" min="0" max="100" placeholder="–"></div>
+          <div><label>平手 %</label><input id="mk_d" type="number" min="0" max="100" placeholder="–"></div>
+          <div><label>客勝 %</label><input id="mk_a" type="number" min="0" max="100" placeholder="–"></div>
+        </div>
+        <div id="mkt_out" class="mktout"></div>
+      </div>
+    </div>
+    <p class="ehint" style="margin-top:12px">選兩隊即出預測。<b>若兩隊剛好是賽程裡的對戰，會自動帶入該場主場/休息修正</b>（上方標明對應 M 場次）；純假設組合則只計手動。下方可填 Polymarket 等盤口的勝率做<b>背離對照</b>。</p>
+  </section>
+
+  <details class="note">
+    <summary>模型怎麼疊、資料怎麼來、能不能一鍵抓網站（務必看）</summary>
+    <div class="note-body">
+      <h3>三層疊加（你要的「歸納」）</h3>
+      <p>每隊強度＝三層相加，再轉成兩隊的期望進球 λ，丟進卜瓦松算勝率與比分：</p>
+      <ul>
+        <li><b style="color:var(--base)">① 歷史基準</b>：FIFA 6/11 官方積分 → <code>λ = 1.25 × e^(0.13×積分差/100)</code>。48 隊全有，<b>不用填任何資料就能預測每一場</b>。</li>
+        <li><b style="color:var(--home)">② 觀測修正</b>：你在賽程頁輸入實際比賽。<b>有填 SofaScore 真實 xG 就優先用真 xG</b>（最準）；沒填才用你 2022 的公式估算。<b>權重 = 場數/(場數+2)</b>：0 場全靠基準、2 場各半、4 場實測佔 67%。實力榜攻擊值標 <span style="color:var(--base)">✓xG</span> 代表已用真實 xG。</li>
+        <li><b style="color:var(--away)">③ 附加判斷</b>＝<b>自動</b>＋<b>手動</b>兩部分：
+          <ul>
+            <li><b>自動</b>(只用於賽程實際比賽)：主辦三國在本國比賽 +0.25 主場；兩隊休息天數差 ×0.05（上限 ±0.12）。賽程頁會顯示 🏠 / 💤 標籤。</li>
+            <li><b>手動</b>：傷兵、停賽、士氣等你的情報，實力榜「附加±」每隊一格，照量表填，沒情報就留 0。</li>
+          </ul>
+          （推演室是假設對戰，無場地/賽程，故只算手動、不含自動主場與休息。）</li>
+      </ul>
+
+      <h3>推估比分 與 為什麼分數看起來都很低</h3>
+      <p>由最終 λ 算出 0–8 球所有比分的機率，挑最高的當「推估比分」。<b>單一最可能比分在足球裡本來就一定低</b>（1-0、1-1、2-1 是真實最常見比數），不代表模型認為比賽低分——其實<b>總進球 ≥3 的機率常有 50% 上下</b>，只是被分散到 3-1、2-2、3-2… 很多種比數，沒有任何單一高比分會是最高機率。所以推演室另外顯示<b>預期總進球</b>與<b>大/小 2.5 球機率</b>，看那兩個才知道模型的進球預期。基準已校準到世足真實場均約 2.7 球。</p>
+
+      <h3>市場對照（Polymarket 等）</h3>
+      <p>推演室可填盤口的三個勝率，工具算出<b>模型 vs 市場的背離</b>。市場是真金白銀的群眾智慧，當<b>背離 ≥10%</b> 多半是市場知道你不知道的事（傷兵、首發）→ 去查證再用手動附加修正。<b>不要把市場機率混進模型</b>，那樣只是在追市場。</p>
+
+      <h3 class="warn">關於「一鍵抓 FIFA / flashscore」——老實說</h3>
+      <ul>
+        <li>純網頁檔<b class="warn">無法</b>即時抓 FIFA 官網或 flashscore：它們是 JS 動態載入、有跨網域(CORS)封鎖、且服務條款不允許爬取。Gemini 那版的「載入最新數據」其實只是把寫死的數字套公式，沒有真的連網。</li>
+        <li>本工具的做法更實在：<b>FIFA 積分已內建（6/11 實數）當歷史基準</b>；「即時數據」就是你看完比賽<b>輸入當天結果</b>——那才是真正的最新資訊，且會自動疊加修正。</li>
+        <li>真要全自動：那是後端的事（你的 Python 強項）。寫個爬蟲輸出本工具能讀的 JSON，再用「載入存檔」匯入即可——我可以幫你規劃這條管線。</li>
+      </ul>
+
+      <h3>存檔</h3>
+      <p>每次更動自動存進這台瀏覽器；換機或備份按「匯出存檔」存 JSON 到 K 槽，回頭「載入存檔」。附加判斷也會一起存。</p>
+      <p class="warn">提醒：FIFA 基準只反映長期實力，抓不到臨場爆冷；你的 xG 公式偏好直接快攻、壓低控球流。小樣本僅供參考。</p>
+    </div>
+  </details>
+
+  <footer>SOLIDJIA · 2026 世足戰情室 V3 · 本機運算 · 基準 FIFA 6/11 · 賽程 FIFA／Marie Claire</footer>
+</div>
+
+<script>
+"use strict";
+/* ===== FIFA points (11 June 2026, real) ===== */
+const FIFA={
+"墨西哥":1687.48,"南非":1428.38,"南韓":1591.63,"捷克":1505.74,
+"加拿大":1559.48,"波赫":1387.22,"卡達":1450.31,"瑞士":1650.06,
+"巴西":1765.86,"摩洛哥":1755.10,"海地":1293.10,"蘇格蘭":1503.34,
+"美國":1671.23,"巴拉圭":1505.35,"澳洲":1579.34,"土耳其":1605.73,
+"德國":1735.77,"庫拉索":1294.77,"象牙海岸":1540.87,"厄瓜多":1598.52,
+"荷蘭":1753.57,"日本":1661.58,"瑞典":1509.79,"突尼西亞":1476.41,
+"比利時":1742.24,"埃及":1562.37,"伊朗":1619.58,"紐西蘭":1275.58,
+"西班牙":1874.71,"維德角":1371.11,"沙烏地阿拉伯":1423.88,"烏拉圭":1673.07,
+"法國":1870.70,"塞內加爾":1684.07,"伊拉克":1446.28,"挪威":1557.44,
+"阿根廷":1877.27,"阿爾及利亞":1571.03,"奧地利":1597.40,"約旦":1387.74,
+"葡萄牙":1767.85,"剛果民主共和國":1474.43,"烏茲別克":1458.73,"哥倫比亞":1698.35,
+"英格蘭":1828.02,"克羅埃西亞":1714.87,"迦納":1346.88,"巴拿馬":1539.16
+};
+const FRANK={}; Object.keys(FIFA).sort((a,b)=>FIFA[b]-FIFA[a]).forEach((t,i)=>FRANK[t]=i+1);
+const PAVG=1580.7, BASE=1.35, ALPHA=0.13, KSHRINK=2;
+
+const GROUPS={A:["墨西哥","南非","南韓","捷克"],B:["加拿大","波赫","卡達","瑞士"],C:["巴西","摩洛哥","海地","蘇格蘭"],D:["美國","巴拉圭","澳洲","土耳其"],E:["德國","庫拉索","象牙海岸","厄瓜多"],F:["荷蘭","日本","瑞典","突尼西亞"],G:["比利時","埃及","伊朗","紐西蘭"],H:["西班牙","維德角","沙烏地阿拉伯","烏拉圭"],I:["法國","塞內加爾","伊拉克","挪威"],J:["阿根廷","阿爾及利亞","奧地利","約旦"],K:["葡萄牙","剛果民主共和國","烏茲別克","哥倫比亞"],L:["英格蘭","克羅埃西亞","迦納","巴拿馬"]};
+const TG={};for(const g in GROUPS)GROUPS[g].forEach(t=>TG[t]=g);
+const ALLTEAMS=Object.keys(TG).sort((a,b)=>FIFA[b]-FIFA[a]);
+
+const F=[
+[1,"6/12（五）","03:00","A","墨西哥","南非"],[2,"6/12（五）","10:00","A","南韓","捷克"],
+[3,"6/13（六）","03:00","B","加拿大","波赫"],[4,"6/13（六）","09:00","D","美國","巴拉圭"],
+[5,"6/14（日）","03:00","B","卡達","瑞士"],[6,"6/14（日）","06:00","C","巴西","摩洛哥"],
+[7,"6/14（日）","09:00","C","海地","蘇格蘭"],[8,"6/14（日）","12:00","D","澳洲","土耳其"],
+[9,"6/15（一）","01:00","E","德國","庫拉索"],[10,"6/15（一）","04:00","F","荷蘭","日本"],
+[11,"6/15（一）","07:00","E","象牙海岸","厄瓜多"],[12,"6/15（一）","10:00","F","瑞典","突尼西亞"],
+[13,"6/16（二）","00:00","H","西班牙","維德角"],[14,"6/16（二）","03:00","G","比利時","埃及"],
+[15,"6/16（二）","06:00","H","沙烏地阿拉伯","烏拉圭"],[16,"6/16（二）","09:00","G","伊朗","紐西蘭"],
+[17,"6/17（三）","03:00","I","法國","塞內加爾"],[18,"6/17（三）","06:00","I","伊拉克","挪威"],
+[19,"6/17（三）","09:00","J","阿根廷","阿爾及利亞"],[20,"6/17（三）","12:00","J","奧地利","約旦"],
+[21,"6/18（四）","01:00","K","葡萄牙","剛果民主共和國"],[22,"6/18（四）","04:00","L","英格蘭","克羅埃西亞"],
+[23,"6/18（四）","07:00","L","迦納","巴拿馬"],[24,"6/18（四）","10:00","K","烏茲別克","哥倫比亞"],
+[25,"6/19（五）","00:00","A","捷克","南非"],[26,"6/19（五）","03:00","B","瑞士","波赫"],
+[27,"6/19（五）","06:00","B","加拿大","卡達"],[28,"6/19（五）","09:00","A","墨西哥","南韓"],
+[29,"6/20（六）","03:00","D","美國","澳洲"],[30,"6/20（六）","06:00","C","蘇格蘭","摩洛哥"],
+[31,"6/20（六）","08:30","C","巴西","海地"],[32,"6/20（六）","11:00","D","土耳其","巴拉圭"],
+[33,"6/21（日）","01:00","F","荷蘭","瑞典"],[34,"6/21（日）","04:00","E","德國","象牙海岸"],
+[35,"6/21（日）","08:00","E","厄瓜多","庫拉索"],[36,"6/21（日）","12:00","F","突尼西亞","日本"],
+[37,"6/22（一）","00:00","H","西班牙","沙烏地阿拉伯"],[38,"6/22（一）","03:00","G","比利時","伊朗"],
+[39,"6/22（一）","06:00","H","烏拉圭","維德角"],[40,"6/22（一）","09:00","G","紐西蘭","埃及"],
+[41,"6/23（二）","01:00","J","阿根廷","奧地利"],[42,"6/23（二）","05:00","I","法國","伊拉克"],
+[43,"6/23（二）","08:00","I","挪威","塞內加爾"],[44,"6/23（二）","11:00","J","約旦","阿爾及利亞"],
+[45,"6/24（三）","01:00","K","葡萄牙","烏茲別克"],[46,"6/24（三）","04:00","L","英格蘭","迦納"],
+[47,"6/24（三）","07:00","L","巴拿馬","克羅埃西亞"],[48,"6/24（三）","10:00","K","哥倫比亞","剛果民主共和國"],
+[49,"6/25（四）","03:00","B","瑞士","加拿大"],[50,"6/25（四）","03:00","B","波赫","卡達"],
+[51,"6/25（四）","06:00","C","摩洛哥","海地"],[52,"6/25（四）","06:00","C","蘇格蘭","巴西"],
+[53,"6/25（四）","09:00","A","南非","南韓"],[54,"6/25（四）","09:00","A","捷克","墨西哥"],
+[55,"6/26（五）","04:00","E","庫拉索","象牙海岸"],[56,"6/26（五）","04:00","E","厄瓜多","德國"],
+[57,"6/26（五）","07:00","F","突尼西亞","荷蘭"],[58,"6/26（五）","07:00","F","日本","瑞典"],
+[59,"6/26（五）","10:00","D","土耳其","美國"],[60,"6/26（五）","10:00","D","巴拉圭","澳洲"],
+[61,"6/27（六）","03:00","I","挪威","法國"],[62,"6/27（六）","03:00","I","塞內加爾","伊拉克"],
+[63,"6/27（六）","08:00","H","維德角","沙烏地阿拉伯"],[64,"6/27（六）","08:00","H","烏拉圭","西班牙"],
+[65,"6/27（六）","11:00","G","紐西蘭","比利時"],[66,"6/27（六）","11:00","G","埃及","伊朗"],
+[67,"6/28（日）","05:00","L","巴拿馬","英格蘭"],[68,"6/28（日）","05:00","L","克羅埃西亞","迦納"],
+[69,"6/28（日）","07:30","K","哥倫比亞","葡萄牙"],[70,"6/28（日）","07:30","K","剛果民主共和國","烏茲別克"],
+[71,"6/28（日）","10:00","J","阿爾及利亞","奧地利"],[72,"6/28（日）","10:00","J","約旦","阿根廷"]
+];
+const FIX=F.map(x=>({id:x[0],date:x[1],time:x[2],group:x[3],home:x[4],away:x[5]}));
+const FIXBYID={}; FIX.forEach(fx=>FIXBYID[fx.id]=fx);
+
+/* 場地所在國(M1..M72)，主辦三國當地比賽 → 真主場 */
+const HOST=new Set(["美國","墨西哥","加拿大"]);
+const VG=[/*MX*/1,2,12,24,28,36,48,53,54,64], VC=[/*CA*/3,8,23,27,34,40,43,49,62,65];
+const VENUE={}; FIX.forEach(fx=>VENUE[fx.id]= VG.includes(fx.id)?"墨西哥": VC.includes(fx.id)?"加拿大":"美國");
+const HOME_BOOST=0.25, REST_PER_DAY=0.05, REST_CAP=0.12;
+
+/* 賽程日期 → 比較用日序(6月直接用日，7月+30) */
+function dateIndex(fx){const m=fx.date.match(/(\d+)\/(\d+)/);if(!m)return 0;const mo=+m[1],d=+m[2];return mo===6?d:30+d;}
+const TEAMSCHED={};
+function buildSched(){ALLTEAMS.forEach(t=>TEAMSCHED[t]=[]);FIX.forEach(fx=>{const idx=dateIndex(fx);TEAMSCHED[fx.home].push(idx);TEAMSCHED[fx.away].push(idx);});for(const t in TEAMSCHED)TEAMSCHED[t].sort((a,b)=>a-b);}
+function restBefore(team,fx){const idx=dateIndex(fx);let prev=null;(TEAMSCHED[team]||[]).forEach(i=>{if(i<idx&&(prev===null||i>prev))prev=i;});return prev===null?null:idx-prev;}
+/* 自動附加(只用於賽程實際比賽)：主場 + 休息天數差 */
+function autoAdjFor(team,fx,opp){let home=0,rest=0;
+  if(HOST.has(team)&&VENUE[fx.id]===team)home=HOME_BOOST;
+  const rA=restBefore(team,fx),rB=restBefore(opp,fx);
+  if(rA!=null&&rB!=null)rest=Math.max(-REST_CAP,Math.min(REST_CAP,(rA-rB)*REST_PER_DAY));
+  return {home,rest,total:home+rest};}
+
+const SK=["shots","sot","poss","passes","passpct","fouls","yellow","red","offside","corner"];
+const SMETA=[["shots","射門","",1],["sot","射正","次",0],["poss","控球","%",1],["passes","傳球","次",0],["passpct","傳成","%",1],["fouls","犯規","次",0],["yellow","黃","次",1],["red","紅","次",1],["offside","越位","次",1],["corner","角球","次",1]];
+
+let RESULTS={}, ADJ={}, derived={}, activeTab="fixtures", fxFilter="all", openEditor=null;
+
+/* ===== storage ===== */
+const LSKEY="wc2026_solidjia_pro";
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,t:Date.now(),r:RESULTS,adj:ADJ}));
+  setStatus("已自動儲存 · "+new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"}),true);}
+  catch(e){setStatus("本機儲存不可用，請用『匯出存檔』",false);}}
+function load(){try{const d=JSON.parse(localStorage.getItem(LSKEY));if(d){RESULTS=d.r||{};ADJ=d.adj||{};}}catch(e){}}
+function setStatus(t,ok){$("status").innerHTML=ok?("<b>●</b> "+t):t;}
+
+/* ===== engine ===== */
+const $=id=>document.getElementById(id);
+const n=v=>{const x=parseFloat(v);return isNaN(x)?0:x;};
+const r2=x=>Math.round(x*100)/100;
+const pct=x=>Math.round(x*100);
+function vSum(s){return n(s.yellow)+n(s.red)+n(s.offside);}
+function xgCalc(s,oppV,oppY){const C=n(s.shots),Fp=n(s.poss)/100,I=n(s.passpct)/100,Y=n(s.corner),V=vSum(s);
+  const Wd=V+oppV,W=Wd>0?r2(V/Wd):0;let inner=(V===0)?1:(100-V)/100*(1-W);let X=(inner===0)?0.1:inner;let fX=((1-X)===0)?1:(1-X);
+  const Zd=Y+oppY,Z=Zd>0?r2(Y/Zd):0;const AA=(100-Y)/100*(1+Z);return Math.max(C/(1+Fp)*(1-I)*fX*AA,0);}
+function fact(k){let f=1;for(let i=2;i<=k;i++)f*=i;return f;}
+function pois(k,l){if(l<=0)return k===0?1:0;return Math.exp(-l)*Math.pow(l,k)/fact(k);}
+function baseLambdas(pa,pb){const h=ALPHA*(pa-pb)/100;return [BASE*Math.exp(h),BASE*Math.exp(-h)];}
+function outcomes(la,lb){let pa=0,pd=0,pb=0,tot=0,cells=[],ov=0;
+  let bH={p:-1,a:1,b:0},bD={p:-1,a:1,b:1},bA={p:-1,a:0,b:1};
+  for(let a=0;a<=8;a++)for(let b=0;b<=8;b++){const p=pois(a,la)*pois(b,lb);tot+=p;cells.push([p,a,b]);
+    if(a>b){pa+=p;if(p>bH.p)bH={p,a,b};}else if(a===b){pd+=p;if(p>bD.p)bD={p,a,b};}else{pb+=p;if(p>bA.p)bA={p,a,b};}
+    if(a+b>=3)ov+=p;}
+  cells.sort((x,y)=>y[0]-x[0]);
+  // 推估比分＝「最可能的勝負結果」裡最可能的比分(讓比分跟著勝率走，避免全是1-1)
+  const cls=(pa>=pd&&pa>=pb)?bH:((pb>=pa&&pb>=pd)?bA:bD);
+  return {pa:pa/tot,pd:pd/tot,pb:pb/tot,expTot:la+lb,over25:ov/tot,
+    headline:{a:cls.a,b:cls.b,p:cls.p/tot},
+    top:cells.slice(0,3).map(c=>({p:c[0]/tot,a:c[1],b:c[2]}))};}
+function hasStats(o){return o&&o.hs&&o.hs.shots!==""&&o.hs.shots!=null&&o.as&&o.as.shots!==""&&o.as.shots!=null;}
+
+function recompute(){
+  derived={};
+  ALLTEAMS.forEach(t=>derived[t]={group:TG[t],P:0,W:0,D:0,L:0,GF:0,GA:0,sn:0,xgF:[],xgA:[],realN:0});
+  FIX.forEach(fx=>{const r=RESULTS["M"+fx.id];if(!r)return;
+    if(r.hg!==""&&r.hg!=null&&r.ag!==""&&r.ag!=null){
+      const H=derived[fx.home],A=derived[fx.away];H.P++;A.P++;H.GF+=n(r.hg);H.GA+=n(r.ag);A.GF+=n(r.ag);A.GA+=n(r.hg);
+      if(n(r.hg)>n(r.ag)){H.W++;A.L++;}else if(n(r.hg)<n(r.ag)){A.W++;H.L++;}else{H.D++;A.D++;}}
+    if(hasStats(r)){const hV=vSum(r.hs),hY=n(r.hs.corner),aV=vSum(r.as),aY=n(r.as.corner);
+      // 觀測 xG：有 SofaScore 真 xG 就用真的，沒有才用 2022 公式估算
+      const realH=(r.hs.xg!=null&&r.hs.xg!=="")?+r.hs.xg:null, realA=(r.as.xg!=null&&r.as.xg!=="")?+r.as.xg:null;
+      const xH=realH!=null?realH:xgCalc(r.hs,aV,aY), xA=realA!=null?realA:xgCalc(r.as,hV,hY);
+      const H=derived[fx.home],A=derived[fx.away];H.xgF.push(xH);H.xgA.push(xA);A.xgF.push(xA);A.xgA.push(xH);H.sn++;A.sn++;
+      if(realH!=null)H.realN++; if(realA!=null)A.realN++;}});
+  ALLTEAMS.forEach(t=>{const d=derived[t];d.pts=d.W*3+d.D;d.gd=d.GF-d.GA;
+    d.attXg=d.xgF.length?d.xgF.reduce((a,b)=>a+b,0)/d.xgF.length:null;
+    d.defXg=d.xgA.length?d.xgA.reduce((a,b)=>a+b,0)/d.xgA.length:null;});
+}
+
+/* blended prediction A vs B */
+function predict(A,B,fid){
+  const [lbA,lbB]=baseLambdas(FIFA[A],FIFA[B]);
+  const dA=derived[A],dB=derived[B];
+  const gp=Math.min(dA.sn,dB.sn), w=gp/(gp+KSHRINK);
+  let lA=lbA,lB=lbB, loA=null,loB=null;
+  if(w>0){loA=(dA.attXg+dB.defXg)/2;loB=(dB.attXg+dA.defXg)/2;lA=(1-w)*lbA+w*loA;lB=(1-w)*lbB+w*loB;}
+  let aA={home:0,rest:0,total:0}, aB={home:0,rest:0,total:0};
+  if(fid&&FIXBYID[fid]){aA=autoAdjFor(A,FIXBYID[fid],B);aB=autoAdjFor(B,FIXBYID[fid],A);}
+  const fA=Math.max(lA+(ADJ[A]||0)+aA.total,0.1), fB=Math.max(lB+(ADJ[B]||0)+aB.total,0.1);
+  const realUsed=(dA.realN>0||dB.realN>0);
+  return {lbA,lbB,loA,loB,w,aA,aB,fA,fB,realUsed,o:outcomes(fA,fB)};
+}
+/* standalone power (blend vs avg opponent) */
+function power(t){const d=derived[t];const x=ALPHA*(FIFA[t]-PAVG)/100;
+  const bAtt=BASE*Math.exp(x),bDef=BASE*Math.exp(-x);const w=d.sn/(d.sn+KSHRINK);
+  let att=bAtt,def=bDef;
+  if(w>0){att=(1-w)*bAtt+w*d.attXg;def=(1-w)*bDef+w*d.defXg;}
+  att+=(ADJ[t]||0);
+  return {att,def,net:att-def,w,sn:d.sn};}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function wbar(w){const b=Math.round((1-w)*54),o=54-b;return `<span class="wbar"><span class="wb" style="width:${b}px"></span><span class="wo" style="width:${o}px"></span></span>`;}
+
+/* ===== fixtures ===== */
+function renderFixtures(){
+  const list=$("fxlist");list.innerHTML="";
+  let shown=FIX.filter(fx=>{const r=RESULTS["M"+fx.id];const played=r&&r.hg!==""&&r.hg!=null;
+    if(fxFilter==="all")return true;if(fxFilter==="todo")return !played;if(fxFilter==="done")return played;return fx.group===fxFilter;});
+  if(!shown.length){list.innerHTML='<p class="empty">這個篩選沒有比賽。</p>';return;}
+  let cur=null,wrap=null;
+  shown.forEach(fx=>{if(fx.date!==cur){cur=fx.date;const dg=document.createElement("div");dg.className="daygroup";
+    dg.innerHTML=`<div class="dayhdr"><span>${fx.date}</span><span class="dn">台灣時間</span></div>`;list.appendChild(dg);wrap=dg;}
+    wrap.appendChild(matchEl(fx));});
+}
+function matchEl(fx){
+  const r=RESULTS["M"+fx.id];
+  const played=r&&r.hg!==""&&r.hg!=null&&r.ag!==""&&r.ag!=null;
+  const el=document.createElement("div");el.className="match";
+  const rkH=`<span class="rk">#${FRANK[fx.home]}</span>`, rkA=`<span class="rk">#${FRANK[fx.away]}</span>`;
+  if(played){
+    let xgTxt="",okTxt="";
+    if(hasStats(r)){const hV=vSum(r.hs),hY=n(r.hs.corner),aV=vSum(r.as),aY=n(r.as.corner);
+      const realH=(r.hs.xg!=null&&r.hs.xg!=="")?+r.hs.xg:null, realA=(r.as.xg!=null&&r.as.xg!=="")?+r.as.xg:null;
+      const xH=realH!=null?realH:xgCalc(r.hs,aV,aY), xA=realA!=null?realA:xgCalc(r.as,hV,hY);
+      const lbl=(realH!=null&&realA!=null)?"真xG":"估xG";
+      xgTxt=`<div class="xgline">${lbl} ${xH.toFixed(2)} – ${xA.toFixed(2)}</div>`;
+      const pick=xH>xA?fx.home:(xA>xH?fx.away:"平"),real=n(r.hg)>n(r.ag)?fx.home:(n(r.ag)>n(r.hg)?fx.away:"平");
+      okTxt=`<span class="okmark ${pick===real?'y':'n'}">${pick===real?'模型✓':'模型✗'}</span>`;}
+    el.innerHTML=`<div class="mrow"><div class="mtag"><b>M${fx.id}</b>${fx.group}組 ${fx.time}</div>
+      <div class="mteams">${esc(fx.home)}${rkH}<span class="sc">${n(r.hg)} - ${n(r.ag)}</span>${esc(fx.away)}${rkA}</div>
+      <div class="mright">${okTxt}${xgTxt}<button class="btn sm ghost" data-edit="${fx.id}">修改</button></div></div>
+      <div class="editor" id="ed${fx.id}"></div>`;
+  }else{
+    const p=predict(fx.home,fx.away,fx.id),o=p.o;
+    const pa=pct(o.pa),pd=pct(o.pd),pb=pct(o.pb),best=o.headline;
+    let src=p.w===0?`<span class="src b">FIFA基準</span>`:`<span class="src o">基準${Math.round((1-p.w)*100)}%·實測${Math.round(p.w*100)}%${p.realUsed?'·真xG':''}</span>`;
+    // 自動附加標籤
+    let tags=[];
+    if(p.aA.home>0)tags.push(`🏠${esc(fx.home)}主場+${p.aA.home.toFixed(2)}`);
+    if(p.aB.home>0)tags.push(`🏠${esc(fx.away)}主場+${p.aB.home.toFixed(2)}`);
+    const rH=restBefore(fx.home,fx),rA2=restBefore(fx.away,fx);
+    if(rH!=null&&rA2!=null&&rH!==rA2){const more=rH>rA2?fx.home:fx.away;tags.push(`💤${esc(more)}多休${Math.abs(rH-rA2)}天`);}
+    const tagline=tags.length?`<div class="xgline" style="color:var(--away)">${tags.join("　")}</div>`:"";
+    el.innerHTML=`<div class="mrow"><div class="mtag"><b>M${fx.id}</b>${fx.group}組 ${fx.time}</div>
+      <div class="mteams">${esc(fx.home)}${rkH}<span class="sep">vs</span>${esc(fx.away)}${rkA}</div>
+      <div class="mright"><div class="pred">
+        <span class="pa">${pa}%</span> · <span class="pd">平 ${pd}%</span> · <span class="pb">${pb}%</span>　<span class="sl">推估 ${best.a}-${best.b}</span>
+        <div class="pbar"><div class="a" style="width:${o.pa*100}%"></div><div class="d" style="width:${o.pd*100}%"></div><div class="b" style="width:${o.pb*100}%"></div></div>
+        <div class="xgline">λ ${p.fA.toFixed(2)} – ${p.fB.toFixed(2)}　${src}</div>${tagline}
+      </div><button class="btn sm" data-edit="${fx.id}">輸入結果</button></div></div>
+      <div class="editor" id="ed${fx.id}"></div>`;
+  }
+  el.querySelector("[data-edit]").addEventListener("click",()=>toggleEditor(fx));
+  return el;
+}
+function toggleEditor(fx){
+  const ed=$("ed"+fx.id);
+  if(ed.classList.contains("open")){ed.classList.remove("open");ed.innerHTML="";openEditor=null;return;}
+  if(openEditor){const o=$("ed"+openEditor);if(o){o.classList.remove("open");o.innerHTML="";}}
+  openEditor=fx.id;
+  const r=RESULTS["M"+fx.id]||{hs:{},as:{},hg:"",ag:""};
+  const col=(side,st)=>SMETA.map(([k,lab,u,drv])=>`<div class="ef"><label>${lab}${drv?'<span class="d">驅動</span>':(u?'<span style="color:var(--muted-2)">'+u+'</span>':'')}</label><input type="number" min="0" data-side="${side}" data-k="${k}" value="${st[k]!=null?st[k]:''}"></div>`).join("")
+    + `<div class="ef"><label>xG <span style="color:var(--base)">選填·優先</span></label><input type="number" step="0.01" min="0" data-side="${side}" data-k="xg" value="${(st.xg!=null&&st.xg!=='')?st.xg:''}"></div>`;
+  ed.innerHTML=`<div class="ehd"><div class="tn h">${esc(fx.home)}</div><div class="tn a">${esc(fx.away)}</div></div>
+    <div class="egrid"><div class="ecol h-col">${col("h",r.hs||{})}<div class="ef score"><label>進球（甲）</label><input type="number" min="0" id="hg${fx.id}" value="${r.hg!=null?r.hg:''}"></div></div>
+    <div class="ecol a-col">${col("a",r.as||{})}<div class="ef score"><label>進球（乙）</label><input type="number" min="0" id="ag${fx.id}" value="${r.ag!=null?r.ag:''}"></div></div></div>
+    <div class="eact"><button class="btn primary" id="sv${fx.id}">儲存結果</button><button class="btn ghost" id="cl${fx.id}">清除此場</button>
+    <span class="ehint">只填比分也能更新積分榜；填齊驅動欄位才會算實測 xG</span></div>`;
+  ed.classList.add("open");
+  $("sv"+fx.id).onclick=()=>{const hs={},as={};document.querySelectorAll(`#ed${fx.id} input[data-side]`).forEach(i=>{const v=i.value.trim();(i.dataset.side==="h"?hs:as)[i.dataset.k]=v===""?"":n(v);});
+    const hg=$("hg"+fx.id).value.trim(),ag=$("ag"+fx.id).value.trim();RESULTS["M"+fx.id]={hs,as,hg:hg===""?"":n(hg),ag:ag===""?"":n(ag)};openEditor=null;afterChange();};
+  $("cl"+fx.id).onclick=()=>{delete RESULTS["M"+fx.id];afterChange();};
+}
+
+/* ===== standings ===== */
+function renderStandings(){
+  const wrap=$("standgrid");wrap.innerHTML="";
+  for(const g in GROUPS){
+    const rows=GROUPS[g].map(t=>({t,d:derived[t]})).sort((a,b)=>b.d.pts-a.d.pts||b.d.gd-a.d.gd||b.d.GF-a.d.GF||FIFA[b.t]-FIFA[a.t]);
+    let body=rows.map((r,i)=>{const d=r.d;const cls=i<2?"qual":(i===2?"q3":"");
+      return `<tr class="${cls}"><td class="tm">${esc(r.t)}</td><td>${d.P}</td><td>${d.W}</td><td>${d.D}</td><td>${d.L}</td><td>${d.GF}</td><td>${d.GA}</td><td>${d.gd>0?'+':''}${d.gd}</td><td class="pts">${d.pts}</td></tr>`;}).join("");
+    const card=document.createElement("div");card.className="gtable";
+    card.innerHTML=`<div class="gh">${g} 組 <small>勝3 平1</small></div><table><thead><tr><th class="tm" style="text-align:left">隊伍</th><th>賽</th><th>勝</th><th>平</th><th>負</th><th>進</th><th>失</th><th>淨</th><th>分</th></tr></thead><tbody>${body}</tbody></table>`;
+    wrap.appendChild(card);
+  }
+}
+
+/* ===== power ===== */
+function renderPower(){
+  const rated=ALLTEAMS.map(t=>({t,p:power(t),d:derived[t]})).sort((a,b)=>b.p.net-a.p.net);
+  const maxAbs=Math.max(0.5,...rated.map(r=>Math.abs(r.p.net)));
+  $("powerbody").innerHTML=rated.map((r,i)=>{const p=r.p,d=r.d;
+    const tier=p.net>0.8?"S":p.net>0.3?"A":p.net>-0.3?"B":"C";
+    const w=Math.round(Math.abs(p.net)/maxAbs*46);
+    const bar=`<span class="netbar ${p.net>=0?'pos':'neg'}" style="width:${w}px"></span>`;
+    const adj=ADJ[r.t]||0;
+    return `<tr><td>${i+1}</td><td><span class="tier ${tier}">${tier}</span></td><td class="tm" style="text-align:left">${esc(r.t)}</td>
+      <td>${d.group}</td><td style="color:var(--base)">${Math.round(FIFA[r.t])}</td><td>${d.P}</td>
+      <td style="color:var(--home)">${p.att.toFixed(2)}${d.realN>0?'<span style="color:var(--base);font-size:9px"> ✓xG</span>':''}</td><td style="color:var(--away)">${p.def.toFixed(2)}</td>
+      <td>${bar} ${p.net>=0?'+':''}${p.net.toFixed(2)}</td>
+      <td>${wbar(p.w)} <span style="color:var(--muted-2);font-size:10px">${p.sn?Math.round(p.w*100)+'%':'基準'}</span></td>
+      <td><input class="adjin" data-adj="${esc(r.t)}" value="${adj}" inputmode="decimal"></td>
+      <td>${d.W}-${d.D}-${d.L}</td></tr>`;}).join("");
+  $("powerbody").querySelectorAll(".adjin").forEach(inp=>inp.addEventListener("change",()=>{
+    const t=inp.dataset.adj,v=parseFloat(inp.value);if(isNaN(v))ADJ[t]=0;else ADJ[t]=Math.max(-1.5,Math.min(1.5,v));afterChange();}));
+}
+
+/* ===== calc / 推演室 ===== */
+function fillSelects(){const opt=t=>`<option value="${esc(t)}">${esc(t)}　#${FRANK[t]}</option>`;
+  $("pick_h").innerHTML=ALLTEAMS.map(opt).join("");$("pick_a").innerHTML=ALLTEAMS.map(opt).join("");
+  $("pick_h").value="阿根廷";$("pick_a").value="法國";syncAdjSliders();}
+function syncAdjSliders(){const h=$("pick_h").value,a=$("pick_a").value;
+  $("adj_h").value=ADJ[h]||0;$("adj_a").value=ADJ[a]||0;
+  $("adj_h_lab").textContent=h;$("adj_a_lab").textContent=a;
+  $("adj_h_val").textContent=(+($("adj_h").value)).toFixed(1);$("adj_a_val").textContent=(+($("adj_a").value)).toFixed(1);}
+function renderCalc(){
+  const A=$("pick_h").value,B=$("pick_a").value;
+  ADJ[A]=parseFloat($("adj_h").value)||0;ADJ[B]=parseFloat($("adj_a").value)||0;
+  $("adj_h_val").textContent=ADJ[A].toFixed(1);$("adj_a_val").textContent=ADJ[B].toFixed(1);
+  let fid=null;for(const fx of FIX){if((fx.home===A&&fx.away===B)||(fx.home===B&&fx.away===A)){fid=fx.id;break;}}
+  const p=predict(A,B,fid),o=p.o;
+  let pa=pct(o.pa),pd=pct(o.pd),pb=pct(o.pb);const drift=100-(pa+pd+pb);
+  if(drift){const m=[["pa",o.pa],["pd",o.pd],["pb",o.pb]].sort((x,y)=>y[1]-x[1])[0][0];if(m==="pa")pa+=drift;else if(m==="pd")pd+=drift;else pb+=drift;}
+  $("cb_a").style.width=o.pa*100+"%";$("cb_d").style.width=o.pd*100+"%";$("cb_b").style.width=o.pb*100+"%";
+  $("cp_a").textContent=pa+"%";$("cp_d").textContent=pd+"%";$("cp_b").textContent=pb+"%";
+  $("cl_a").textContent=A+" 勝";$("cl_b").textContent=B+" 勝";
+  const v=$("c_verdict");const gap=Math.abs(o.pa-o.pb);
+  if(gap<0.03){v.classList.remove("flip");v.innerHTML=`勢均力敵　<span class="pct" style="color:var(--draw)">${Math.max(pa,pb)}%</span> 上下`;}
+  else if(o.pa>o.pb){v.classList.remove("flip");v.innerHTML=`${esc(A)} 較被看好　<span class="pct">${pa}%</span>`;}
+  else{v.classList.add("flip");v.innerHTML=`${esc(B)} 較被看好　<span class="pct">${pb}%</span>`;}
+  const best=o.headline;
+  $("c_score").firstChild.textContent=`${best.a} – ${best.b}`;
+  $("c_score_sub").textContent=`依最可能結果：${esc(A)} ${best.a} : ${best.b} ${esc(B)}`;
+  $("c_tops").innerHTML=`<span class="ts" style="color:var(--muted-2)">最常見確切比分</span>`+o.top.map(t=>`<span class="ts"><b>${t.a}-${t.b}</b> ${pct(t.p)}%</span>`).join("");
+  $("c_total").innerHTML=`<span class="ts">預期總進球 <b>${o.expTot.toFixed(1)}</b></span> <span class="ts">大 2.5 球 <b>${pct(o.over25)}%</b></span> <span class="ts">小 2.5 球 <b>${100-pct(o.over25)}%</b></span>`;
+  $("br_base").innerHTML=`λ <b style="color:var(--base)">${p.lbA.toFixed(2)} – ${p.lbB.toFixed(2)}</b> <span class="gv">（FIFA ${Math.round(FIFA[A])} vs ${Math.round(FIFA[B])}）</span>`;
+  if(p.w>0)$("br_obs").innerHTML=`λ <b style="color:var(--home)">${p.loA.toFixed(2)} – ${p.loB.toFixed(2)}</b> <span class="gv">（權重 ${Math.round(p.w*100)}%，各 ${derived[A].sn}／${derived[B].sn} 場${p.realUsed?'，含真實 xG':'，估算 xG'}）</span>`;
+  else $("br_obs").innerHTML=`<span class="gv">尚無實測，權重 0%（兩隊都需先有含數據的比賽）</span>`;
+  $("br_final").innerHTML=`λ ${p.fA.toFixed(2)} – ${p.fB.toFixed(2)}`;
+  if(fid){let t=[];
+    if(p.aA.home>0)t.push(`🏠${esc(A)}主場+${p.aA.home.toFixed(2)}`);
+    if(p.aB.home>0)t.push(`🏠${esc(B)}主場+${p.aB.home.toFixed(2)}`);
+    if(Math.abs(p.aA.rest)>0.001)t.push(`💤休息差${p.aA.rest>0?'+':''}${p.aA.rest.toFixed(2)}`);
+    $("c_auto").innerHTML=`對應賽程 <b style="color:var(--base)">M${fid}</b>`+(t.length?`，已自動帶入：${t.join("　")}`:`（本場無主場/休息差異）`);
+  }else $("c_auto").innerHTML=`假設對戰（非賽程組合），只計手動附加、不含主場/休息`;
+  renderMarket(o.pa,o.pd,o.pb,A,B);
+}
+function renderMarket(mpa,mpd,mpb,A,B){
+  const mh=parseFloat($("mk_h").value),md=parseFloat($("mk_d").value),ma=parseFloat($("mk_a").value);
+  const have=[mh,md,ma].filter(x=>!isNaN(x));const out=$("mkt_out");
+  if(have.length<2){out.innerHTML='<span class="gvm">填入市場勝率(至少主勝＋客勝)即可比對你與市場的背離。</span>';return;}
+  let h=isNaN(mh)?0:mh,d=isNaN(md)?0:md,a=isNaN(ma)?0:ma;const s=h+d+a;if(s>0){h=h/s*100;d=d/s*100;a=a/s*100;}
+  const rows=[["主勝",A,mpa*100,h],["平手","",mpd*100,d],["客勝",B,mpb*100,a]];
+  out.innerHTML=rows.map(([lab,nm,mod,mk])=>{const g=mod-mk;const big=Math.abs(g)>=10;
+    const arrow=g>0?'▲模型較樂觀':g<0?'▼市場較樂觀':'＝';
+    return `<div class="mktrow"><span>${lab}${nm?'·'+esc(nm):''}</span><span class="mod">模型 ${Math.round(mod)}%</span><span class="mkt2">市場 ${Math.round(mk)}%</span><span class="gap ${big?'big':''}">${g>=0?'+':''}${Math.round(g)}${big?' '+arrow:''}</span></div>`;}).join("")
+    +`<div class="gvm" style="margin-top:7px">背離 ≥10% 標橘：差越大代表你和群眾分歧越大——先查傷兵/首發，再決定要不要用手動附加修正。</div>`;
+}
+
+/* ===== flow ===== */
+function afterChange(){recompute();save();renderActive();}
+function renderActive(){if(activeTab==="fixtures")renderFixtures();else if(activeTab==="standings")renderStandings();else if(activeTab==="power")renderPower();else if(activeTab==="calc")renderCalc();}
+function switchTab(tab){activeTab=tab;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+tab));renderActive();}
+
+function exportSave(){const blob=new Blob([JSON.stringify({v:2,savedAt:new Date().toISOString(),results:RESULTS,adj:ADJ},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="世足戰情室PRO存檔_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);}
+function importSave(file){const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);RESULTS=d.results||d.r||{};ADJ=d.adj||{};afterChange();syncAdjSliders();setStatus("存檔已載入",true);}catch(e){alert("讀不出來，請確認是本工具匯出的 JSON。");}};rd.readAsText(file);}
+
+/* wire */
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+document.querySelectorAll("#fxfilters button").forEach(b=>b.onclick=()=>{fxFilter=b.dataset.f;document.querySelectorAll("#fxfilters button").forEach(x=>x.classList.toggle("on",x===b));renderFixtures();});
+$("btn-export").onclick=exportSave;$("btn-import").onclick=()=>$("file-import").click();
+$("file-import").onchange=e=>{if(e.target.files[0])importSave(e.target.files[0]);};
+$("btn-reset").onclick=()=>{if(confirm("清空所有已輸入的實測比賽與附加調整？建議先匯出存檔。")){RESULTS={};ADJ={};afterChange();syncAdjSliders();}};
+["adj_h","adj_a"].forEach(id=>$(id).addEventListener("input",renderCalc));
+["mk_h","mk_d","mk_a"].forEach(id=>$(id).addEventListener("input",renderCalc));
+$("pick_h").onchange=()=>{syncAdjSliders();renderCalc();};$("pick_a").onchange=()=>{syncAdjSliders();renderCalc();};
+
+(async function init(){
+  let local=null; try{local=JSON.parse(localStorage.getItem(LSKEY));}catch(e){}
+  let remote=null;
+  try{const r=await fetch("./data.json",{cache:"no-store"}); if(r.ok) remote=await r.json();}catch(e){}
+  const tsOf=d=>!d?0:(d.t||Date.parse(d.savedAt)||0);
+  const useRemote = remote && (!local || tsOf(remote)>=tsOf(local));
+  const pick = useRemote ? remote : local;
+  if(pick){RESULTS=pick.results||pick.r||{};ADJ=pick.adj||{};}
+  buildSched();recompute();fillSelects();switchTab("fixtures");
+  if(useRemote) setStatus("已從線上 data.json 載入 "+Object.keys(RESULTS).length+" 場",true);
+  else setStatus(Object.keys(RESULTS).length?("已載入 "+Object.keys(RESULTS).length+" 場實測"):"FIFA 基準已就緒，可直接看每場勝率",Object.keys(RESULTS).length>0);
+})();
+</script>
+</body>
+</html>
