@@ -180,6 +180,13 @@
     .pickrow{grid-template-columns:1fr;gap:6px}.vsmid{display:none}
     .brow{grid-template-columns:90px 1fr}
   }
+  .kohdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px 6px}
+  .kostg{color:var(--muted);font-size:12px;font-family:"IBM Plex Mono",monospace;margin-right:auto}
+  .koteam{background:var(--ink);border:1px solid var(--line);border-radius:7px;color:var(--chalk);font-size:13px;padding:5px 8px;max-width:160px;cursor:pointer}
+  .koteam:focus{outline:none;border-color:var(--base)}
+  .kovs{color:var(--muted-2);font-size:11px}
+  .kobody{display:flex;align-items:center;gap:12px;padding:2px 14px 12px}
+  .koinfo{flex:1;color:var(--muted-2);font-size:12.5px;padding:4px 0}
 </style>
 </head>
 <body>
@@ -224,6 +231,7 @@
       <button data-f="D">D</button><button data-f="E">E</button><button data-f="F">F</button>
       <button data-f="G">G</button><button data-f="H">H</button><button data-f="I">I</button>
       <button data-f="J">J</button><button data-f="K">K</button><button data-f="L">L</button>
+      <button data-f="ko">🏆 淘汰賽</button>
     </div>
     <div id="fxlist"></div>
   </section>
@@ -393,6 +401,45 @@ const F=[
 const FIX=F.map(x=>({id:x[0],date:x[1],time:x[2],group:x[3],home:x[4],away:x[5]}));
 const FIXBYID={}; FIX.forEach(fx=>FIXBYID[fx.id]=fx);
 
+/* ===== 淘汰賽 M73~M104（對戰隊伍要分組賽後手動選定）===== */
+const KO=[
+ [73,"32強","6/29","03:00","美國","A2 vs B2"],
+ [76,"32強","6/30","01:00","美國","C1 vs F2"],
+ [74,"32強","6/30","04:30","美國","E1 vs 最佳第三(ABCDF)"],
+ [75,"32強","6/30","09:00","墨西哥","F1 vs C2"],
+ [78,"32強","7/1","01:00","美國","E2 vs I2"],
+ [77,"32強","7/1","05:00","美國","I1 vs 最佳第三(CDFGH)"],
+ [79,"32強","7/1","09:00","墨西哥","A1 vs 最佳第三(CEFHI)"],
+ [80,"32強","7/2","00:00","美國","L1 vs 最佳第三(EHIJK)"],
+ [82,"32強","7/2","04:00","美國","G1 vs 最佳第三(AEHIJ)"],
+ [81,"32強","7/2","08:00","美國","D1 vs 最佳第三(BEFIJ)"],
+ [84,"32強","7/3","03:00","美國","H1 vs J2"],
+ [83,"32強","7/3","07:00","加拿大","K2 vs L2"],
+ [85,"32強","7/3","11:00","加拿大","B1 vs 最佳第三(EFGIJ)"],
+ [88,"32強","7/4","02:00","美國","D2 vs G2"],
+ [86,"32強","7/4","06:00","美國","J1 vs H2"],
+ [87,"32強","7/4","09:30","美國","K1 vs 最佳第三(DEIJL)"],
+ [90,"16強","7/5","01:00","美國","M73勝 vs M75勝"],
+ [89,"16強","7/5","05:00","美國","M74勝 vs M77勝"],
+ [91,"16強","7/6","04:00","美國","M76勝 vs M78勝"],
+ [92,"16強","7/6","08:00","墨西哥","M79勝 vs M80勝"],
+ [93,"16強","7/7","03:00","美國","M83勝 vs M84勝"],
+ [94,"16強","7/7","08:00","美國","M81勝 vs M82勝"],
+ [95,"16強","7/8","00:00","美國","M86勝 vs M88勝"],
+ [96,"16強","7/8","04:00","加拿大","M85勝 vs M87勝"],
+ [97,"8強","7/10","04:00","美國","M89勝 vs M90勝"],
+ [98,"8強","7/11","03:00","美國","M93勝 vs M94勝"],
+ [99,"8強","7/12","05:00","美國","M91勝 vs M92勝"],
+ [100,"8強","7/12","09:00","美國","M95勝 vs M96勝"],
+ [101,"4強","7/15","03:00","美國","M97勝 vs M98勝"],
+ [102,"4強","7/16","03:00","美國","M99勝 vs M100勝"],
+ [103,"季軍","7/19","05:00","美國","M101敗 vs M102敗"],
+ [104,"冠軍","7/20","03:00","美國","M101勝 vs M102勝"],
+].map(x=>({id:x[0],stage:x[1],date:x[2],time:x[3],venue:x[4],label:x[5],ko:true}));
+const KOBYID={}; KO.forEach(k=>KOBYID[k.id]=k);
+let KOT={};   /* 淘汰賽各場選定的隊伍 {73:{h:"墨西哥",a:"巴西"}} */
+function koTeams(id){const t=KOT[id];return t&&t.h&&t.a&&t.h!==t.a?{h:t.h,a:t.a}:null;}
+
 /* 場地所在國(M1..M72)，主辦三國當地比賽 → 真主場 */
 const HOST=new Set(["美國","墨西哥","加拿大"]);
 const VG=[/*MX*/1,2,12,24,28,36,48,53,54,64], VC=[/*CA*/3,8,23,27,34,40,43,49,62,65];
@@ -404,11 +451,13 @@ function dateIndex(fx){const m=fx.date.match(/(\d+)\/(\d+)/);if(!m)return 0;cons
 const TEAMSCHED={};
 function buildSched(){ALLTEAMS.forEach(t=>TEAMSCHED[t]=[]);FIX.forEach(fx=>{const idx=dateIndex(fx);TEAMSCHED[fx.home].push(idx);TEAMSCHED[fx.away].push(idx);});for(const t in TEAMSCHED)TEAMSCHED[t].sort((a,b)=>a-b);}
 function restBefore(team,fx){const idx=dateIndex(fx);let prev=null;(TEAMSCHED[team]||[]).forEach(i=>{if(i<idx&&(prev===null||i>prev))prev=i;});return prev===null?null:idx-prev;}
-/* 自動附加(只用於賽程實際比賽)：主場 + 休息天數差 */
+/* 自動附加：主場(含淘汰賽場地) + 休息天數差(僅小組賽，賽程固定才算) */
 function autoAdjFor(team,fx,opp){let home=0,rest=0;
-  if(HOST.has(team)&&VENUE[fx.id]===team)home=HOME_BOOST;
-  const rA=restBefore(team,fx),rB=restBefore(opp,fx);
-  if(rA!=null&&rB!=null)rest=Math.max(-REST_CAP,Math.min(REST_CAP,(rA-rB)*REST_PER_DAY));
+  if(!fx)return{home,rest,total:0};
+  const venue=fx.ko?fx.venue:VENUE[fx.id];
+  if(venue&&HOST.has(team)&&venue===team)home=HOME_BOOST;
+  if(!fx.ko){const rA=restBefore(team,fx),rB=restBefore(opp,fx);
+    if(rA!=null&&rB!=null)rest=Math.max(-REST_CAP,Math.min(REST_CAP,(rA-rB)*REST_PER_DAY));}
   return {home,rest,total:home+rest};}
 
 const SK=["shots","sot","poss","passes","passpct","fouls","yellow","red","offside","corner"];
@@ -418,7 +467,7 @@ let RESULTS={}, ADJ={}, derived={}, activeTab="fixtures", fxFilter="all", openEd
 
 /* ===== storage ===== */
 const LSKEY="wc2026_solidjia_pro";
-function save(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,t:Date.now(),r:RESULTS,adj:ADJ}));
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,t:Date.now(),r:RESULTS,adj:ADJ,kot:KOT}));
   setStatus("已自動儲存 · "+new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"}),true);}
   catch(e){setStatus("本機儲存不可用，請用『匯出存檔』",false);}}
 function load(){try{const d=JSON.parse(localStorage.getItem(LSKEY));if(d){RESULTS=d.r||{};ADJ=d.adj||{};}}catch(e){}}
@@ -449,19 +498,24 @@ function outcomes(la,lb){let pa=0,pd=0,pb=0,tot=0,cells=[],ov=0;
     top:cells.slice(0,3).map(c=>({p:c[0]/tot,a:c[1],b:c[2]}))};}
 function hasStats(o){return o&&o.hs&&o.hs.shots!==""&&o.hs.shots!=null&&o.as&&o.as.shots!==""&&o.as.shots!=null;}
 
+function addObs(home,away,r){
+  if(!hasStats(r))return;const H=derived[home],A=derived[away];if(!H||!A)return;
+  const realH=(r.hs.xg!=null&&r.hs.xg!=="")?+r.hs.xg:null, realA=(r.as.xg!=null&&r.as.xg!=="")?+r.as.xg:null;
+  const xH=realH!=null?realH:xgCalc(r.hs,vSum(r.as),n(r.as.corner)), xA=realA!=null?realA:xgCalc(r.as,vSum(r.hs),n(r.hs.corner));
+  H.xgF.push(xH);H.xgA.push(xA);A.xgF.push(xA);A.xgA.push(xH);H.sn++;A.sn++;
+  if(realH!=null)H.realN++; if(realA!=null)A.realN++;
+}
 function recompute(){
   derived={};
   ALLTEAMS.forEach(t=>derived[t]={group:TG[t],P:0,W:0,D:0,L:0,GF:0,GA:0,sn:0,xgF:[],xgA:[],realN:0});
+  // 小組賽：更新積分榜 + 觀測 xG
   FIX.forEach(fx=>{const r=RESULTS["M"+fx.id];if(!r)return;
     if(r.hg!==""&&r.hg!=null&&r.ag!==""&&r.ag!=null){
       const H=derived[fx.home],A=derived[fx.away];H.P++;A.P++;H.GF+=n(r.hg);H.GA+=n(r.ag);A.GF+=n(r.ag);A.GA+=n(r.hg);
       if(n(r.hg)>n(r.ag)){H.W++;A.L++;}else if(n(r.hg)<n(r.ag)){A.W++;H.L++;}else{H.D++;A.D++;}}
-    if(hasStats(r)){const hV=vSum(r.hs),hY=n(r.hs.corner),aV=vSum(r.as),aY=n(r.as.corner);
-      // 觀測 xG：有 SofaScore 真 xG 就用真的，沒有才用 2022 公式估算
-      const realH=(r.hs.xg!=null&&r.hs.xg!=="")?+r.hs.xg:null, realA=(r.as.xg!=null&&r.as.xg!=="")?+r.as.xg:null;
-      const xH=realH!=null?realH:xgCalc(r.hs,aV,aY), xA=realA!=null?realA:xgCalc(r.as,hV,hY);
-      const H=derived[fx.home],A=derived[fx.away];H.xgF.push(xH);H.xgA.push(xA);A.xgF.push(xA);A.xgA.push(xH);H.sn++;A.sn++;
-      if(realH!=null)H.realN++; if(realA!=null)A.realN++;}});
+    addObs(fx.home,fx.away,r);});
+  // 淘汰賽：只餵觀測 xG（不計入小組積分榜）
+  KO.forEach(ko=>{const t=koTeams(ko.id);if(!t)return;const r=RESULTS["M"+ko.id];if(!r)return;addObs(t.h,t.a,r);});
   ALLTEAMS.forEach(t=>{const d=derived[t];d.pts=d.W*3+d.D;d.gd=d.GF-d.GA;
     d.attXg=d.xgF.length?d.xgF.reduce((a,b)=>a+b,0)/d.xgF.length:null;
     d.defXg=d.xgA.length?d.xgA.reduce((a,b)=>a+b,0)/d.xgA.length:null;});
@@ -475,7 +529,8 @@ function predict(A,B,fid){
   let lA=lbA,lB=lbB, loA=null,loB=null;
   if(w>0){loA=(dA.attXg+dB.defXg)/2;loB=(dB.attXg+dA.defXg)/2;lA=(1-w)*lbA+w*loA;lB=(1-w)*lbB+w*loB;}
   let aA={home:0,rest:0,total:0}, aB={home:0,rest:0,total:0};
-  if(fid&&FIXBYID[fid]){aA=autoAdjFor(A,FIXBYID[fid],B);aB=autoAdjFor(B,FIXBYID[fid],A);}
+  const fxo=FIXBYID[fid]||KOBYID[fid];
+  if(fxo){aA=autoAdjFor(A,fxo,B);aB=autoAdjFor(B,fxo,A);}
   const fA=Math.max(lA+(ADJ[A]||0)+aA.total,0.1), fB=Math.max(lB+(ADJ[B]||0)+aB.total,0.1);
   const realUsed=(dA.realN>0||dB.realN>0);
   return {lbA,lbB,loA,loB,w,aA,aB,fA,fB,realUsed,o:outcomes(fA,fB)};
@@ -494,13 +549,25 @@ function wbar(w){const b=Math.round((1-w)*54),o=54-b;return `<span class="wbar">
 /* ===== fixtures ===== */
 function renderFixtures(){
   const list=$("fxlist");list.innerHTML="";
-  let shown=FIX.filter(fx=>{const r=RESULTS["M"+fx.id];const played=r&&r.hg!==""&&r.hg!=null;
-    if(fxFilter==="all")return true;if(fxFilter==="todo")return !played;if(fxFilter==="done")return played;return fx.group===fxFilter;});
-  if(!shown.length){list.innerHTML='<p class="empty">這個篩選沒有比賽。</p>';return;}
-  let cur=null,wrap=null;
-  shown.forEach(fx=>{if(fx.date!==cur){cur=fx.date;const dg=document.createElement("div");dg.className="daygroup";
-    dg.innerHTML=`<div class="dayhdr"><span>${fx.date}</span><span class="dn">台灣時間</span></div>`;list.appendChild(dg);wrap=dg;}
-    wrap.appendChild(matchEl(fx));});
+  // ── 小組賽 ──
+  if(fxFilter!=="ko"){
+    let shown=FIX.filter(fx=>{const r=RESULTS["M"+fx.id];const played=r&&r.hg!==""&&r.hg!=null;
+      if(fxFilter==="all")return true;if(fxFilter==="todo")return !played;if(fxFilter==="done")return played;return fx.group===fxFilter;});
+    let cur=null,wrap=null;
+    shown.forEach(fx=>{if(fx.date!==cur){cur=fx.date;const dg=document.createElement("div");dg.className="daygroup";
+      dg.innerHTML=`<div class="dayhdr"><span>${fx.date}</span><span class="dn">台灣時間</span></div>`;list.appendChild(dg);wrap=dg;}
+      wrap.appendChild(matchEl(fx));});
+  }
+  // ── 淘汰賽（全部/淘汰賽/未賽/已賽 時顯示；選特定組別時不顯示）──
+  if(fxFilter==="all"||fxFilter==="ko"||fxFilter==="todo"||fxFilter==="done"){
+    let koShown=KO.filter(ko=>{const t=koTeams(ko.id);const r=RESULTS["M"+ko.id];const played=t&&r&&r.hg!==""&&r.hg!=null;
+      if(fxFilter==="todo")return !played;if(fxFilter==="done")return played;return true;});
+    let curStage=null,wrap=null;
+    koShown.forEach(ko=>{if(ko.stage!==curStage){curStage=ko.stage;const dg=document.createElement("div");dg.className="daygroup";
+      dg.innerHTML=`<div class="dayhdr"><span>🏆 ${ko.stage}</span><span class="dn">${ko.date} 起 · 台灣時間</span></div>`;list.appendChild(dg);wrap=dg;}
+      wrap.appendChild(koEl(ko));});
+  }
+  if(!list.children.length)list.innerHTML='<p class="empty">這個篩選沒有比賽。</p>';
 }
 function matchEl(fx){
   const r=RESULTS["M"+fx.id];
@@ -541,6 +608,50 @@ function matchEl(fx){
       <div class="editor" id="ed${fx.id}"></div>`;
   }
   el.querySelector("[data-edit]").addEventListener("click",()=>toggleEditor(fx));
+  return el;
+}
+function koEl(ko){
+  const el=document.createElement("div");el.className="match";
+  const t=koTeams(ko.id);
+  const raw=KOT[ko.id]||{};
+  const same=raw.h&&raw.a&&raw.h===raw.a;
+  const r=RESULTS["M"+ko.id];
+  const played=t&&r&&r.hg!==""&&r.hg!=null&&r.ag!==""&&r.ag!=null;
+  const optList=cur=>`<option value="">— 選隊 —</option>`+ALLTEAMS.map(x=>`<option value="${esc(x)}" ${cur===x?"selected":""}>${esc(x)} #${FRANK[x]}</option>`).join("");
+  const hdr=`<div class="kohdr"><span class="mtag"><b>M${ko.id}</b> ${ko.stage}·${ko.time}</span>
+    <span class="kostg">${esc(ko.label)}</span>
+    <select class="koteam" data-ko="${ko.id}" data-side="h">${optList(raw.h||"")}</select>
+    <span class="kovs">vs</span>
+    <select class="koteam" data-ko="${ko.id}" data-side="a">${optList(raw.a||"")}</select></div>`;
+  let mid="";
+  if(!t){
+    mid=`<div class="koinfo">${same?'⚠ 兩隊不能相同':'↑ 選定兩隊後，自動顯示勝率與推估比分'}</div>`;
+  }else if(played){
+    let xgTxt="",okTxt="";
+    if(hasStats(r)){const realH=(r.hs.xg!=null&&r.hs.xg!=="")?+r.hs.xg:null, realA=(r.as.xg!=null&&r.as.xg!=="")?+r.as.xg:null;
+      const xH=realH!=null?realH:xgCalc(r.hs,vSum(r.as),n(r.as.corner)), xA=realA!=null?realA:xgCalc(r.as,vSum(r.hs),n(r.hs.corner));
+      const lbl=(realH!=null&&realA!=null)?"真xG":"估xG";
+      xgTxt=`<div class="xgline">${lbl} ${xH.toFixed(2)} – ${xA.toFixed(2)}</div>`;
+      const pick=xH>xA?t.h:(xA>xH?t.a:"平"),real=n(r.hg)>n(r.ag)?t.h:(n(r.ag)>n(r.hg)?t.a:"平");
+      okTxt=`<span class="okmark ${pick===real?'y':'n'}">${pick===real?'模型✓':'模型✗'}</span>`;}
+    mid=`<div class="mteams" style="flex:1">${esc(t.h)}<span class="sc">${n(r.hg)} - ${n(r.ag)}</span>${esc(t.a)}</div><div class="mright">${okTxt}${xgTxt}</div>`;
+  }else{
+    const p=predict(t.h,t.a,ko.id),o=p.o;const pa=pct(o.pa),pd=pct(o.pd),pb=pct(o.pb),best=o.headline;
+    let src=p.w===0?`<span class="src b">FIFA基準</span>`:`<span class="src o">基準${Math.round((1-p.w)*100)}%·實測${Math.round(p.w*100)}%${p.realUsed?'·真xG':''}</span>`;
+    let tags=[];
+    if(p.aA.home>0)tags.push(`🏠${esc(t.h)}主場+${p.aA.home.toFixed(2)}`);
+    if(p.aB.home>0)tags.push(`🏠${esc(t.a)}主場+${p.aB.home.toFixed(2)}`);
+    const tagline=tags.length?`<div class="xgline" style="color:var(--away)">${tags.join("　")}</div>`:"";
+    mid=`<div class="pred" style="flex:1">
+        <span class="pa">${pa}% ${esc(t.h)}</span> · <span class="pd">平 ${pd}%</span> · <span class="pb">${esc(t.a)} ${pb}%</span>　<span class="sl">推估 ${best.a}-${best.b}</span>
+        <div class="pbar"><div class="a" style="width:${o.pa*100}%"></div><div class="d" style="width:${o.pd*100}%"></div><div class="b" style="width:${o.pb*100}%"></div></div>
+        <div class="xgline">λ ${p.fA.toFixed(2)} – ${p.fB.toFixed(2)}　${src}</div>${tagline}</div>`;
+  }
+  const btn=t?`<button class="btn sm ${played?'ghost':''}" data-edit="${ko.id}">${played?'修改':'輸入結果'}</button>`:"";
+  el.innerHTML=`${hdr}<div class="kobody">${mid}${btn}</div><div class="editor" id="ed${ko.id}"></div>`;
+  el.querySelectorAll("select.koteam").forEach(s=>s.onchange=()=>{const id=s.dataset.ko;KOT[id]=KOT[id]||{h:"",a:""};KOT[id][s.dataset.side]=s.value;
+    if(!KOT[id].h&&!KOT[id].a)delete KOT[id];afterChange();});
+  const eb=el.querySelector("[data-edit]");if(eb)eb.addEventListener("click",()=>toggleEditor({id:ko.id,home:t.h,away:t.a}));
   return el;
 }
 function toggleEditor(fx){
@@ -653,16 +764,16 @@ function renderActive(){if(activeTab==="fixtures")renderFixtures();else if(activ
 function switchTab(tab){activeTab=tab;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+tab));renderActive();}
 
-function exportSave(){const blob=new Blob([JSON.stringify({v:2,savedAt:new Date().toISOString(),results:RESULTS,adj:ADJ},null,2)],{type:"application/json"});
+function exportSave(){const blob=new Blob([JSON.stringify({v:2,savedAt:new Date().toISOString(),results:RESULTS,adj:ADJ,kot:KOT},null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="世足戰情室PRO存檔_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);}
-function importSave(file){const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);RESULTS=d.results||d.r||{};ADJ=d.adj||{};afterChange();syncAdjSliders();setStatus("存檔已載入",true);}catch(e){alert("讀不出來，請確認是本工具匯出的 JSON。");}};rd.readAsText(file);}
+function importSave(file){const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);RESULTS=d.results||d.r||{};ADJ=d.adj||{};KOT=d.kot||{};afterChange();syncAdjSliders();setStatus("存檔已載入",true);}catch(e){alert("讀不出來，請確認是本工具匯出的 JSON。");}};rd.readAsText(file);}
 
 /* wire */
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 document.querySelectorAll("#fxfilters button").forEach(b=>b.onclick=()=>{fxFilter=b.dataset.f;document.querySelectorAll("#fxfilters button").forEach(x=>x.classList.toggle("on",x===b));renderFixtures();});
 $("btn-export").onclick=exportSave;$("btn-import").onclick=()=>$("file-import").click();
 $("file-import").onchange=e=>{if(e.target.files[0])importSave(e.target.files[0]);};
-$("btn-reset").onclick=()=>{if(confirm("清空所有已輸入的實測比賽與附加調整？建議先匯出存檔。")){RESULTS={};ADJ={};afterChange();syncAdjSliders();}};
+$("btn-reset").onclick=()=>{if(confirm("清空所有已輸入的實測比賽與附加調整？建議先匯出存檔。")){RESULTS={};ADJ={};KOT={};afterChange();syncAdjSliders();}};
 ["adj_h","adj_a"].forEach(id=>$(id).addEventListener("input",renderCalc));
 ["mk_h","mk_d","mk_a"].forEach(id=>$(id).addEventListener("input",renderCalc));
 $("pick_h").onchange=()=>{syncAdjSliders();renderCalc();};$("pick_a").onchange=()=>{syncAdjSliders();renderCalc();};
@@ -674,7 +785,7 @@ $("pick_h").onchange=()=>{syncAdjSliders();renderCalc();};$("pick_a").onchange=(
   const tsOf=d=>!d?0:(d.t||Date.parse(d.savedAt)||0);
   const useRemote = remote && (!local || tsOf(remote)>=tsOf(local));
   const pick = useRemote ? remote : local;
-  if(pick){RESULTS=pick.results||pick.r||{};ADJ=pick.adj||{};}
+  if(pick){RESULTS=pick.results||pick.r||{};ADJ=pick.adj||{};KOT=pick.kot||{};}
   buildSched();recompute();fillSelects();switchTab("fixtures");
   if(useRemote) setStatus("已從線上 data.json 載入 "+Object.keys(RESULTS).length+" 場",true);
   else setStatus(Object.keys(RESULTS).length?("已載入 "+Object.keys(RESULTS).length+" 場實測"):"FIFA 基準已就緒，可直接看每場勝率",Object.keys(RESULTS).length>0);
