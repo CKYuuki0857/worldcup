@@ -1,0 +1,8 @@
+# 🔒 自動加入：禁止上傳任何金鑰/憑證檔
+config.py
+config*.py
+*.pfx
+*.key
+*.pem
+tpro_*.json
+tpro_*.csv
