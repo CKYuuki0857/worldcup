@@ -245,8 +245,21 @@
   .aihint{background:var(--away-dim);border:1px solid var(--line);border-radius:11px;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--chalk)}
   .aihint code{background:var(--ink);padding:1px 6px;border-radius:5px;color:var(--away);font-size:12px}
   .aimeta{font-size:11px;color:var(--muted-2);margin-top:9px}
+  .divbadge{font-size:11px;font-weight:700;padding:2px 11px;border-radius:20px;margin-left:8px}
+  .divbadge.lo{background:var(--home-dim);color:var(--home)}
+  .divbadge.mid{background:var(--away-dim);color:var(--away)}
+  .divbadge.hi{background:rgba(255,92,108,.16);color:#FF5C6C}
+  .divrow{display:grid;grid-template-columns:1fr auto 1fr;gap:11px;align-items:center;text-align:center;margin-bottom:11px}
+  .divcol{background:var(--ink-2);border:1px solid var(--line);border-radius:11px;padding:13px}
+  .divcol .dlab{display:block;font-size:11px;color:var(--muted)}
+  .divcol .dval{display:block;font-size:27px;font-weight:800;font-family:"IBM Plex Mono",monospace;margin-top:4px;line-height:1}
+  .divcol .dsub{display:block;font-size:11.5px;color:var(--muted);margin-top:5px}
+  .divmid{font-size:16px;color:var(--muted-2);font-weight:700}
+  .divnote{font-size:12.5px;line-height:1.65;color:var(--chalk);background:var(--base-dim);border-radius:9px;padding:11px 13px}
+  .divnote.hi{background:rgba(255,92,108,.1)}
+  .divnote b{color:var(--chalk)}
   .rpgrid2{display:grid;grid-template-columns:300px 1fr;gap:13px;margin-bottom:13px}
-  @media(max-width:680px){.rplam,.aiconsensus,.aimodels,.rpgrid2{grid-template-columns:1fr}.rphead{grid-template-columns:1fr}.rpvs{display:none}}
+  @media(max-width:680px){.rplam,.aiconsensus,.aimodels,.rpgrid2,.divrow{grid-template-columns:1fr}.rphead{grid-template-columns:1fr}.rpvs{display:none}}
 </style>
 </head>
 <body>
@@ -842,6 +855,28 @@ function poisGrid(la,lb){let tot=0,cells=[];
   const top=[...cells].sort((x,y)=>y[0]-x[0]).slice(0,5);
   const grid={};let mx=0;cells.forEach(([p,a,b])=>{if(a<=5&&b<=5){grid[a+"_"+b]=p;if(p>mx)mx=p;}});
   return {over,top,grid,mx};}
+function parseScore(s){const m=String(s||"").match(/(\d{1,2})\s*[-:]\s*(\d{1,2})/);return m?[+m[1],+m[2]]:null;}
+function aiDivergence(o,best,ai,A,B){
+  const modelW=Math.abs(o.pa-o.pb)<0.03?"平":(o.pa>o.pb?A:B);
+  const modelMargin=Math.abs(best.a-best.b);
+  const fav=o.pa>=o.pb?A:B;
+  let aiScore=null;
+  if(Array.isArray(ai.consensus)&&ai.consensus[0]&&ai.consensus[0].score)aiScore=ai.consensus[0].score;
+  if(!aiScore&&ai.models&&ai.models.length){const t={};ai.models.forEach(m=>{const s=m.scores&&m.scores[0];if(s)t[s]=(t[s]||0)+1;});const r=Object.entries(t).sort((a,b)=>b[1]-a[1]);if(r.length)aiScore=r[0][0];}
+  const ps=parseScore(aiScore);
+  const aiW=ps?(ps[0]>ps[1]?A:(ps[1]>ps[0]?B:"平")):"—";
+  const aiMargin=ps?Math.abs(ps[0]-ps[1]):0;
+  let agree=0,valid=0;
+  (ai.models||[]).forEach(m=>{const s=m.scores&&m.scores[0];const p=parseScore(s);if(!p)return;valid++;const w=p[0]>p[1]?A:(p[1]>p[0]?B:"平");if(w===fav)agree++;});
+  const agreePct=valid?Math.round(agree/valid*100):0;
+  let level,cls,note;
+  if(modelW!=="平"&&aiW!=="平"&&aiW!=="—"&&modelW!==aiW){level="高分歧";cls="hi";note=`⚠ <b>方向背離</b>：統計模型看 <b>${esc(modelW)}</b> 勝、AI 多數看 <b>${esc(aiW)}</b>。先查傷兵／首發／停賽再決定是否進場——這種分歧最危險，也最可能藏 alpha。`;}
+  else if(aiW==="平"||modelW==="平"){level="中分歧";cls="mid";note=`一方偏向平局（模型 <b>${esc(modelW)}</b>／AI <b>${esc(aiW)}</b>）。留意盤口平手賠率與悶戰風險。`;}
+  else{const dm=Math.abs(modelMargin-aiMargin);
+    if(dm>=2){level="中分歧";cls="mid";note=`方向一致（都看 <b>${esc(modelW)}</b> 勝），但比分幅度差 ${dm} 球，會影響大小球判讀；下注大小球前再確認。`;}
+    else{level="低分歧";cls="lo";note=`方向一致、比分接近（模型 ${best.a}-${best.b}、AI ${esc(aiScore||"—")}），訊號乾淨，可放心參考。`;}}
+  return {level,cls,modelW,modelScore:`${best.a}-${best.b}`,modelP:Math.max(pct(o.pa),pct(o.pb)),aiW,aiScore:aiScore||"—",agreePct,note};
+}
 function renderReport(){
   const sel=$("rp_match");const prev=sel.value||rpMatch;
   sel.innerHTML=reportOptions();
@@ -883,10 +918,18 @@ function renderReport(){
     const noteCls=nt=>/重反/.test(nt||"")?'heavy':/輕反|微反/.test(nt||"")?'light':'follow';
     const consHtml=consArr.length?`<div class="aiconsensus">`+consArr.slice(0,3).map(c=>`<div class="aicc"><div class="sc">${esc(c.score||"—")}</div><div class="tag ${noteCls(c.note)}">${esc(c.note||"跟盤")}</div><div class="sub">${esc(c.label||"")}${c.reason?'<br>'+esc(c.reason):''}</div></div>`).join("")+`</div>`:"";
     const coreHtml=ai.coreReason?`<div class="aihint" style="margin-bottom:13px;background:var(--base-dim)"><b>🧭 核心研判</b><br>${esc(ai.coreReason)}</div>`:"";
+    const dv=aiDivergence(o,best,ai,A,B);
+    const divHtml=`<div class="rpcard"><p class="rphd"><span class="ico">🔀</span>模型 ⇄ AI 分歧度 <span class="divbadge ${dv.cls}">${dv.level}</span></p>
+      <div class="divrow">
+        <div class="divcol"><span class="dlab">統計模型</span><span class="dval" style="color:var(--base)">${dv.modelScore}</span><span class="dsub">${esc(dv.modelW)} ${dv.modelP}%</span></div>
+        <div class="divmid">⇄</div>
+        <div class="divcol"><span class="dlab">AI 共識</span><span class="dval" style="color:var(--home)">${esc(dv.aiScore)}</span><span class="dsub">${esc(dv.aiW)} · ${dv.agreePct}% 模型同向</span></div>
+      </div>
+      <div class="divnote ${dv.cls==='hi'?'hi':''}">${dv.note}</div></div>`;
     const mh=ai.models.map(m=>{const scores=(m.scores&&m.scores.length)?m.scores:[m.score||"—"];
       const chips=scores.map((sc,i)=>`<span class="pscore ${i?'alt':''}">${esc(sc)}</span>`).join("");
       return `<div class="aimrow"><span class="eng">${esc(m.engine||"模型")}</span><div class="scs">${chips}</div>${m.reason?`<div class="airzn">${esc(m.reason)}</div>`:""}</div>`;}).join("");
-    aiHtml=`<div class="rpcard"><p class="rphd"><span class="ico">🤖</span>多模型 AI 共識（${ai.models.length} 模型）</p>${coreHtml}${consHtml}<div class="aimodels">${mh}</div>
+    aiHtml=divHtml+`<div class="rpcard"><p class="rphd"><span class="ico">🤖</span>多模型 AI 共識（${ai.models.length} 模型）</p>${coreHtml}${consHtml}<div class="aimodels">${mh}</div>
       <div class="aimeta">產生時間：${AIPRED.generatedAt?esc(AIPRED.generatedAt):"—"}　·　AI 比分屬「氛圍判讀」，準度不必然優於上方統計模型，當第二意見參考</div></div>`;
   }else{
     aiHtml=`<div class="rpcard"><p class="rphd"><span class="ico">🤖</span>多模型 AI 共識</p>
