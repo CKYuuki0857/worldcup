@@ -429,6 +429,11 @@
         <div class="dcslider"><label>強度 ρ <b id="dc_rho_val">-0.08</b></label><input type="range" id="dc_rho" min="-0.15" max="0" step="0.01" value="-0.08"></div>
         <span class="cbhint">ρ 越負＝越拉高平手機率。對照下方「實際 vs 模型平手率」調到貼合即可。</span>
       </div>
+      <div class="dcbox" style="margin-top:10px">
+        <div class="dcslider"><label>強弱差距 α <b id="alpha_val">0.13</b></label><input type="range" id="alpha_rng" min="0.06" max="0.16" step="0.01" value="0.13"></div>
+        <button class="btn" id="alpha_reset" style="padding:5px 12px">↺ 回預設 0.13</button>
+        <span class="cbhint">α 越大＝強隊 λ 越高、爆冷越少。⚠ 影響所有預測，建議 30 場以上、確認強隊系統性高估再動。</span>
+      </div>
     </div>
     <div id="calib_out"></div>
   </section>
@@ -500,7 +505,8 @@ const FIFA={
 "英格蘭":1828.02,"克羅埃西亞":1714.87,"迦納":1346.88,"巴拿馬":1539.16
 };
 const FRANK={}; Object.keys(FIFA).sort((a,b)=>FIFA[b]-FIFA[a]).forEach((t,i)=>FRANK[t]=i+1);
-const PAVG=1580.7, BASE=1.35, ALPHA=0.13, KSHRINK=2;
+const PAVG=1580.7, BASE=1.35, KSHRINK=2;
+let ALPHA=0.13;
 
 const GROUPS={A:["墨西哥","南非","南韓","捷克"],B:["加拿大","波赫","卡達","瑞士"],C:["巴西","摩洛哥","海地","蘇格蘭"],D:["美國","巴拉圭","澳洲","土耳其"],E:["德國","庫拉索","象牙海岸","厄瓜多"],F:["荷蘭","日本","瑞典","突尼西亞"],G:["比利時","埃及","伊朗","紐西蘭"],H:["西班牙","維德角","沙烏地阿拉伯","烏拉圭"],I:["法國","塞內加爾","伊拉克","挪威"],J:["阿根廷","阿爾及利亞","奧地利","約旦"],K:["葡萄牙","剛果民主共和國","烏茲別克","哥倫比亞"],L:["英格蘭","克羅埃西亞","迦納","巴拿馬"]};
 const TG={};for(const g in GROUPS)GROUPS[g].forEach(t=>TG[t]=g);
@@ -613,7 +619,7 @@ let RESULTS={}, ADJ={}, derived={}, activeTab="fixtures", fxFilter="all", openEd
 
 /* ===== storage ===== */
 const LSKEY="wc2026_solidjia_pro";
-function save(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,t:Date.now(),r:RESULTS,adj:ADJ,kot:KOT,dc:DC_ON,rho:RHO}));
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify({v:2,t:Date.now(),r:RESULTS,adj:ADJ,kot:KOT,dc:DC_ON,rho:RHO,alpha:ALPHA}));
   setStatus("已自動儲存 · "+new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit"}),true);}
   catch(e){setStatus("本機儲存不可用，請用『匯出存檔』",false);}}
 function load(){try{const d=JSON.parse(localStorage.getItem(LSKEY));if(d){RESULTS=d.r||{};ADJ=d.adj||{};}}catch(e){}}
@@ -1050,7 +1056,8 @@ function completedMatches(){const list=[];
   FIX.forEach(fx=>{const r=RESULTS["M"+fx.id];if(r&&r.hg!==""&&r.hg!=null&&r.ag!==""&&r.ag!=null)list.push({id:fx.id,home:fx.home,away:fx.away,fid:fx.id,hg:+r.hg,ag:+r.ag});});
   KO.forEach(ko=>{const t=koTeams(ko.id);const r=RESULTS["M"+ko.id];if(t&&r&&r.hg!==""&&r.hg!=null&&r.ag!==""&&r.ag!=null)list.push({id:ko.id,home:t.h,away:t.a,fid:ko.id,hg:+r.hg,ag:+r.ag});});
   return list;}
-function syncDC(){if(!$("dc_on"))return;$("dc_on").checked=DC_ON;$("dc_rho").value=RHO;$("dc_rho_val").textContent=(+RHO).toFixed(2);$("dc_rho").disabled=!DC_ON;}
+function syncDC(){if(!$("dc_on"))return;$("dc_on").checked=DC_ON;$("dc_rho").value=RHO;$("dc_rho_val").textContent=(+RHO).toFixed(2);$("dc_rho").disabled=!DC_ON;
+  if($("alpha_rng")){$("alpha_rng").value=ALPHA;$("alpha_val").textContent=(+ALPHA).toFixed(2);}}
 function renderCalib(){
   syncDC();const ms=completedMatches();const out=$("calib_out");
   if(!ms.length){out.innerHTML='<p class="empty">還沒有已完成的比賽。到「賽程」輸入比分後，這裡會評估模型的命中率、Brier 分數與平手校準。</p>';return;}
@@ -1071,9 +1078,10 @@ function renderCalib(){
   const golA=(golAct/N).toFixed(2),golP=(golPred/N).toFixed(2),favR=favN?Math.round(favHit/favN*100):null;
   const gap=drawAct/N-drawPred/N;let vCls,vTxt;
   if(N<10){vCls="warn";vTxt=`樣本僅 <b>${N}</b> 場，數據還太少，先別急著動參數，建議累積 <b>20 場以上</b>再看趨勢。`;}
-  else if(gap>0.05){vCls="warn";vTxt=`實際平手率（${drawActR}%）高於模型（${drawPredR}%）約 <b>${Math.round(gap*100)}pp</b>。建議${DC_ON?'把 ρ 調更負（如 -0.10～-0.12）':'開啟 DC 修正'}讓兩者貼合。`;}
+  else if(gap>0.10){vCls="warn";vTxt=`實際平手率（${drawActR}%）遠高於模型（${drawPredR}%）約 <b>${Math.round(gap*100)}pp</b>。⚠ DC（ρ）數學上拉不動這麼大的差距，多半是強隊臨門變異或爆冷；若持續且強隊 <b>xG 也偏低</b>，再考慮把 α 降一格，否則維持、續觀察。`;}
+  else if(gap>0.05){vCls="warn";vTxt=`實際平手率（${drawActR}%）高於模型（${drawPredR}%）約 <b>${Math.round(gap*100)}pp</b>。${DC_ON?'可把 ρ 微調更負（如 -0.10～-0.12）':'可開啟 DC 修正'}，或把 α 降一格觀察。`;}
   else if(gap<-0.05){vCls="warn";vTxt=`模型平手率（${drawPredR}%）高於實際（${drawActR}%）約 <b>${Math.round(-gap*100)}pp</b>，可能 DC 過頭，建議把 ρ 往 0 收（如 -0.04）。`;}
-  else{vCls="good";vTxt=`平手校準良好（實際 ${drawActR}% vs 模型 ${drawPredR}%，差 ${Math.round(Math.abs(gap)*100)}pp 內）。${DC_ON?`目前 DC ρ=${(+RHO).toFixed(2)}`:'目前未開 DC'}，維持即可。`;}
+  else{vCls="good";vTxt=`平手校準良好（實際 ${drawActR}% vs 模型 ${drawPredR}%，差 ${Math.round(Math.abs(gap)*100)}pp 內）。${DC_ON?`目前 DC ρ=${(+RHO).toFixed(2)}`:'目前未開 DC'}、α=${(+ALPHA).toFixed(2)}，維持即可。`;}
   const bCls=brierAvg<0.6?"good":(brierAvg<0.667?"warn":"bad");
   const trend=N>=2?`<div class="trendrow">
     <div class="trendcard"><div class="tlabel">命中率累積<b>${hitR}%</b></div>${sparkline(hitSeq,{color:'var(--base)',lo:0,hi:100,refs:[33]})}<div class="tfoot">場 1 → ${N}　虛線＝隨機 33%</div></div>
@@ -1157,7 +1165,7 @@ function runMC(total,onProgress,onDone){
     if(i<total)setTimeout(chunk,0);else onDone(stats,total);}
   chunk();}
 let mcRunning=false,mcStats=null,mcTotal=0,mcStamp="";
-function mcFingerprint(){return JSON.stringify({r:RESULTS,dc:DC_ON,rho:RHO,adj:ADJ,kot:KOT});}
+function mcFingerprint(){return JSON.stringify({r:RESULTS,dc:DC_ON,rho:RHO,alpha:ALPHA,adj:ADJ,kot:KOT});}
 function startMC(){if(mcRunning)return;mcRunning=true;const iters=+$("mc_iters").value;
   $("mc_run").disabled=true;$("mc_prog").style.display="block";$("mc_bar").style.width="0%";
   $("champ_out").innerHTML='<p class="empty">模擬中…請稍候（'+iters.toLocaleString()+' 次）</p>';
@@ -1181,9 +1189,9 @@ function renderActive(){if(activeTab==="fixtures")renderFixtures();else if(activ
 function switchTab(tab){activeTab=tab;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
   document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+tab));renderActive();}
 
-function exportSave(){const blob=new Blob([JSON.stringify({v:2,savedAt:new Date().toISOString(),results:RESULTS,adj:ADJ,kot:KOT,dc:DC_ON,rho:RHO},null,2)],{type:"application/json"});
+function exportSave(){const blob=new Blob([JSON.stringify({v:2,savedAt:new Date().toISOString(),results:RESULTS,adj:ADJ,kot:KOT,dc:DC_ON,rho:RHO,alpha:ALPHA},null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="世足戰情室PRO存檔_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);}
-function importSave(file){const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);RESULTS=d.results||d.r||{};ADJ=d.adj||{};KOT=d.kot||{};if(d.dc!=null)DC_ON=!!d.dc;if(d.rho!=null)RHO=+d.rho;afterChange();syncAdjSliders();syncDC();setStatus("存檔已載入",true);}catch(e){alert("讀不出來，請確認是本工具匯出的 JSON。");}};rd.readAsText(file);}
+function importSave(file){const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);RESULTS=d.results||d.r||{};ADJ=d.adj||{};KOT=d.kot||{};if(d.dc!=null)DC_ON=!!d.dc;if(d.rho!=null)RHO=+d.rho;if(d.alpha!=null)ALPHA=+d.alpha;afterChange();syncAdjSliders();syncDC();setStatus("存檔已載入",true);}catch(e){alert("讀不出來，請確認是本工具匯出的 JSON。");}};rd.readAsText(file);}
 
 /* wire */
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
@@ -1197,6 +1205,8 @@ $("pick_h").onchange=()=>{syncAdjSliders();renderCalc();};$("pick_a").onchange=(
 $("rp_match").onchange=renderReport;
 $("dc_on").onchange=()=>{DC_ON=$("dc_on").checked;$("dc_rho").disabled=!DC_ON;save();renderActive();};
 $("dc_rho").oninput=()=>{RHO=+$("dc_rho").value;$("dc_rho_val").textContent=RHO.toFixed(2);save();renderActive();};
+$("alpha_rng").oninput=()=>{ALPHA=+$("alpha_rng").value;$("alpha_val").textContent=ALPHA.toFixed(2);save();renderActive();};
+$("alpha_reset").onclick=()=>{ALPHA=0.13;$("alpha_rng").value=0.13;$("alpha_val").textContent="0.13";save();renderActive();};
 $("mc_run").onclick=startMC;
 
 (async function init(){
@@ -1207,7 +1217,7 @@ $("mc_run").onclick=startMC;
   const tsOf=d=>!d?0:(d.t||Date.parse(d.savedAt)||0);
   const useRemote = remote && (!local || tsOf(remote)>=tsOf(local));
   const pick = useRemote ? remote : local;
-  if(pick){RESULTS=pick.results||pick.r||{};ADJ=pick.adj||{};KOT=pick.kot||{};if(pick.dc!=null)DC_ON=!!pick.dc;if(pick.rho!=null)RHO=+pick.rho;}
+  if(pick){RESULTS=pick.results||pick.r||{};ADJ=pick.adj||{};KOT=pick.kot||{};if(pick.dc!=null)DC_ON=!!pick.dc;if(pick.rho!=null)RHO=+pick.rho;if(pick.alpha!=null)ALPHA=+pick.alpha;}
   buildSched();recompute();fillSelects();switchTab("fixtures");
   if(useRemote) setStatus("已從線上 data.json 載入 "+Object.keys(RESULTS).length+" 場",true);
   else setStatus(Object.keys(RESULTS).length?("已載入 "+Object.keys(RESULTS).length+" 場實測"):"FIFA 基準已就緒，可直接看每場勝率",Object.keys(RESULTS).length>0);
