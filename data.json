@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-06-15T05:31:17.821Z",
+  "savedAt": "2026-06-16T01:35:05.118Z",
   "results": {
     "M1": {
       "hs": {
@@ -361,6 +361,96 @@
       },
       "hg": 5,
       "ag": 1
+    },
+    "M13": {
+      "hs": {
+        "shots": 27,
+        "sot": 7,
+        "poss": 74,
+        "passes": 800,
+        "passpct": 92,
+        "fouls": 10,
+        "yellow": 1,
+        "red": 0,
+        "offside": 2,
+        "corner": 11,
+        "xg": 2.1
+      },
+      "as": {
+        "shots": 6,
+        "sot": 1,
+        "poss": 26,
+        "passes": 278,
+        "passpct": 74,
+        "fouls": 1,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 1,
+        "xg": 0.21
+      },
+      "hg": 0,
+      "ag": 0
+    },
+    "M14": {
+      "hs": {
+        "shots": 15,
+        "sot": 3,
+        "poss": 54,
+        "passes": 455,
+        "passpct": 86,
+        "fouls": 15,
+        "yellow": 2,
+        "red": 0,
+        "offside": 0,
+        "corner": 2,
+        "xg": 1.35
+      },
+      "as": {
+        "shots": 14,
+        "sot": 3,
+        "poss": 46,
+        "passes": 398,
+        "passpct": 81,
+        "fouls": 15,
+        "yellow": 2,
+        "red": 0,
+        "offside": 1,
+        "corner": 7,
+        "xg": 1.08
+      },
+      "hg": 1,
+      "ag": 1
+    },
+    "M15": {
+      "hs": {
+        "shots": 7,
+        "sot": 3,
+        "poss": 33,
+        "passes": 320,
+        "passpct": 73,
+        "fouls": 11,
+        "yellow": 1,
+        "red": 0,
+        "offside": 0,
+        "corner": 4,
+        "xg": 0.99
+      },
+      "as": {
+        "shots": 27,
+        "sot": 10,
+        "poss": 67,
+        "passes": 611,
+        "passpct": 88,
+        "fouls": 6,
+        "yellow": 0,
+        "red": 0,
+        "offside": 6,
+        "corner": 14,
+        "xg": 1.54
+      },
+      "hg": 1,
+      "ag": 1
     }
   },
   "adj": {
@@ -374,5 +464,8 @@
     "瑞士": 0,
     "巴西": 0,
     "摩洛哥": 0
-  }
+  },
+  "kot": {},
+  "dc": true,
+  "rho": -0.08
 }

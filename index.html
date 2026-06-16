@@ -294,6 +294,12 @@
   .pbar2>i{display:block;height:100%;background:var(--home);border-radius:5px}
   td.champ b{color:var(--home);font-family:"IBM Plex Mono",monospace;font-size:13px}
   .rank1{color:#FFD24F!important} .rank2{color:#C8D2CC!important} .rank3{color:#E0A872!important}
+  .trendrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .trendcard{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+  .trendcard .tlabel{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .trendcard .tlabel b{color:var(--chalk);font-size:15px;font-family:"IBM Plex Mono",monospace;margin-left:4px}
+  .trendcard .tfoot{font-size:10.5px;color:var(--muted-2);margin-top:4px}
+  @media(max-width:680px){.trendrow{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1025,6 +1031,18 @@ function renderReport(){
 function afterChange(){recompute();save();renderActive();}
 /* ===== 📊 校準儀表板 ===== */
 // 純先驗預測：FIFA基準 + 自動主場/休息（不含手動附加）；經 outcomes 故含 DC
+function sparkline(vals,opt){
+  const w=opt.w||280,h=opt.h||64,pad=9,refs=opt.refs||[];
+  let lo=opt.lo!=null?opt.lo:Math.min.apply(null,vals.concat(refs));
+  let hi=opt.hi!=null?opt.hi:Math.max.apply(null,vals.concat(refs));
+  if(hi<=lo)hi=lo+1;const rng=hi-lo;
+  const X=i=>pad+(vals.length<=1?(w-2*pad)/2:i/(vals.length-1)*(w-2*pad));
+  const Y=v=>h-pad-((v-lo)/rng)*(h-2*pad);
+  const refL=refs.map(r=>`<line x1="${pad}" y1="${Y(r).toFixed(1)}" x2="${w-pad}" y2="${Y(r).toFixed(1)}" stroke="var(--muted-2)" stroke-width="1" stroke-dasharray="3 3" opacity=".55"/>`).join("");
+  const pts=vals.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+  const dots=vals.map((v,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="2.3" fill="${opt.color}"/>`).join("");
+  const area=vals.length>1?`<polyline points="${pad},${(h-pad).toFixed(1)} ${pts} ${(w-pad).toFixed(1)},${(h-pad).toFixed(1)}" fill="${opt.color}" opacity=".08"/>`:'';
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">${refL}${area}<polyline points="${pts}" fill="none" stroke="${opt.color}" stroke-width="2" stroke-linejoin="round"/>${dots}</svg>`;}
 function priorPredict(A,B,fid){const [lbA,lbB]=baseLambdas(FIFA[A],FIFA[B]);
   let aA={total:0},aB={total:0};const fxo=FIXBYID[fid]||KOBYID[fid];if(fxo){aA=autoAdjFor(A,fxo,B);aB=autoAdjFor(B,fxo,A);}
   return outcomes(Math.max(lbA+aA.total,0.1),Math.max(lbB+aB.total,0.1));}
@@ -1037,14 +1055,17 @@ function renderCalib(){
   syncDC();const ms=completedMatches();const out=$("calib_out");
   if(!ms.length){out.innerHTML='<p class="empty">還沒有已完成的比賽。到「賽程」輸入比分後，這裡會評估模型的命中率、Brier 分數與平手校準。</p>';return;}
   let hit=0,brier=0,drawAct=0,drawPred=0,golAct=0,golPred=0,favHit=0,favN=0,rows="";
-  ms.forEach(m=>{const o=priorPredict(m.home,m.away,m.fid);
+  const hitSeq=[],brierSeq=[];
+  ms.forEach((m,idx)=>{const o=priorPredict(m.home,m.away,m.fid);
     const oW=m.hg>m.ag?1:0,oD=m.hg===m.ag?1:0,oL=m.hg<m.ag?1:0;
-    brier+=(o.pa-oW)**2+(o.pd-oD)**2+(o.pb-oL)**2;
+    const bm=(o.pa-oW)**2+(o.pd-oD)**2+(o.pb-oL)**2;brier+=bm;
     const pick=(o.pa>=o.pd&&o.pa>=o.pb)?"W":((o.pb>=o.pa&&o.pb>=o.pd)?"L":"D");
     const act=oW?"W":(oD?"D":"L");const ok=pick===act;if(ok)hit++;
     drawAct+=oD;drawPred+=o.pd;golAct+=m.hg+m.ag;golPred+=o.expTot;
     if(Math.abs(o.pa-o.pb)>=0.15){favN++;const favW=o.pa>o.pb?oW:oL;if(favW)favHit++;}
-    rows+=`<tr><td>M${m.id}</td><td>${esc(m.home)} <b>${m.hg}-${m.ag}</b> ${esc(m.away)}</td><td class="c">${pct(o.pa)}/${pct(o.pd)}/${pct(o.pb)}</td><td class="c">${o.headline.a}-${o.headline.b}</td><td class="c">${m.hg}-${m.ag}</td><td class="c ${ok?'hit':'miss'}">${ok?'✓':'✗'}</td></tr>`;});
+    hitSeq.push(hit/(idx+1)*100);brierSeq.push(brier/(idx+1));
+    const bCls=bm<0.3?'hit':(bm>0.8?'miss':'');
+    rows+=`<tr><td>M${m.id}</td><td>${esc(m.home)} <b>${m.hg}-${m.ag}</b> ${esc(m.away)}</td><td class="c">${pct(o.pa)}/${pct(o.pd)}/${pct(o.pb)}</td><td class="c">${o.headline.a}-${o.headline.b}</td><td class="c">${m.hg}-${m.ag}</td><td class="c ${ok?'hit':'miss'}">${ok?'✓':'✗'}</td><td class="c ${bCls}">${bm.toFixed(2)}</td></tr>`;});
   const N=ms.length,hitR=Math.round(hit/N*100),brierAvg=brier/N;
   const drawActR=Math.round(drawAct/N*100),drawPredR=Math.round(drawPred/N*100);
   const golA=(golAct/N).toFixed(2),golP=(golPred/N).toFixed(2),favR=favN?Math.round(favHit/favN*100):null;
@@ -1054,6 +1075,10 @@ function renderCalib(){
   else if(gap<-0.05){vCls="warn";vTxt=`模型平手率（${drawPredR}%）高於實際（${drawActR}%）約 <b>${Math.round(-gap*100)}pp</b>，可能 DC 過頭，建議把 ρ 往 0 收（如 -0.04）。`;}
   else{vCls="good";vTxt=`平手校準良好（實際 ${drawActR}% vs 模型 ${drawPredR}%，差 ${Math.round(Math.abs(gap)*100)}pp 內）。${DC_ON?`目前 DC ρ=${(+RHO).toFixed(2)}`:'目前未開 DC'}，維持即可。`;}
   const bCls=brierAvg<0.6?"good":(brierAvg<0.667?"warn":"bad");
+  const trend=N>=2?`<div class="trendrow">
+    <div class="trendcard"><div class="tlabel">命中率累積<b>${hitR}%</b></div>${sparkline(hitSeq,{color:'var(--base)',lo:0,hi:100,refs:[33]})}<div class="tfoot">場 1 → ${N}　虛線＝隨機 33%</div></div>
+    <div class="trendcard"><div class="tlabel">平均 Brier 累積<b>${brierAvg.toFixed(3)}</b></div>${sparkline(brierSeq,{color:'var(--home)',refs:[0.667]})}<div class="tfoot">場 1 → ${N}　虛線＝無技能 0.667（越低越好）</div></div>
+  </div>`:'';
   out.innerHTML=`<div class="kpis">
     <div class="kpi"><div class="k">已評估場數</div><div class="v">${N}</div><div class="s">純先驗 out-of-sample</div></div>
     <div class="kpi ${hitR>=50?'good':'warn'}"><div class="k">勝負命中率</div><div class="v">${hitR}%</div><div class="s">猜中 W/D/L 方向</div></div>
@@ -1063,7 +1088,8 @@ function renderCalib(){
     ${favR!=null?`<div class="kpi ${favR>=60?'good':'warn'}"><div class="k">熱門命中率</div><div class="v">${favR}%</div><div class="s">${favN} 場明顯讓步盤</div></div>`:''}
   </div>
   <div class="cbverdict ${vCls}"><b>🎚️ 校準判讀／DC 建議：</b>${vTxt}</div>
-  <div class="tblwrap"><table class="cbt"><thead><tr><th>場次</th><th>對戰</th><th>模型 勝/平/負%</th><th>推估</th><th>實際</th><th>命中</th></tr></thead><tbody>${rows}</tbody></table></div>
+  ${trend}
+  <div class="tblwrap"><table class="cbt"><thead><tr><th>場次</th><th>對戰</th><th>模型 勝/平/負%</th><th>推估</th><th>實際</th><th>命中</th><th>Brier</th></tr></thead><tbody>${rows}</tbody></table></div>
   <p class="cbhint" style="margin-top:10px">校準採「純基準＋自動主場/休息」(不含手動附加)，是最嚴格的 out-of-sample 測試；實戰工具用「基準＋實測」疊加版。切換上方 DC 可即時比較對平手校準的影響。</p>`;
 }
 
@@ -1130,13 +1156,15 @@ function runMC(total,onProgress,onDone){
   function chunk(){const end=Math.min(i+500,total);for(;i<end;i++)oneSim(stats);onProgress(i/total);
     if(i<total)setTimeout(chunk,0);else onDone(stats,total);}
   chunk();}
-let mcRunning=false;
+let mcRunning=false,mcStats=null,mcTotal=0,mcStamp="";
+function mcFingerprint(){return JSON.stringify({r:RESULTS,dc:DC_ON,rho:RHO,adj:ADJ,kot:KOT});}
 function startMC(){if(mcRunning)return;mcRunning=true;const iters=+$("mc_iters").value;
   $("mc_run").disabled=true;$("mc_prog").style.display="block";$("mc_bar").style.width="0%";
   $("champ_out").innerHTML='<p class="empty">模擬中…請稍候（'+iters.toLocaleString()+' 次）</p>';
   runMC(iters,f=>{$("mc_bar").style.width=(f*100).toFixed(0)+"%";},(stats,total)=>{
-    mcRunning=false;$("mc_run").disabled=false;$("mc_prog").style.display="none";paintChampions(stats,total);});}
-function paintChampions(stats,total){
+    mcRunning=false;$("mc_run").disabled=false;$("mc_prog").style.display="none";
+    mcStats=stats;mcTotal=total;mcStamp=mcFingerprint();paintChampions(stats,total,false);});}
+function paintChampions(stats,total,stale){
   const P=x=>x/total*100;
   const rows=ALLTEAMS.map(t=>Object.assign({t},stats[t])).filter(r=>r.q>0).sort((a,b)=>b.champ-a.champ||b.rf-a.rf||b.r4-a.r4||b.r16-a.r16);
   const cmax=rows.length?P(rows[0].champ):1;
@@ -1144,9 +1172,10 @@ function paintChampions(stats,total){
     return `<tr><td class="c ${rk}" style="font-weight:700">${i+1}</td><td>${esc(r.t)} <span style="color:var(--muted-2);font-size:11px">#${FRANK[r.t]}</span></td>
       <td class="c">${P(r.q).toFixed(0)}%</td><td class="c">${P(r.r16).toFixed(0)}%</td><td class="c">${P(r.r8).toFixed(0)}%</td><td class="c">${P(r.r4).toFixed(1)}%</td><td class="c">${P(r.rf).toFixed(1)}%</td>
       <td class="champ"><div class="champcell"><div class="pbar2"><i style="width:${cmax>0?(cp/cmax*100):0}%"></i></div><b>${cp.toFixed(1)}%</b></div></td></tr>`;}).join("");
-  $("champ_out").innerHTML=`<div class="tblwrap"><table class="mct"><thead><tr><th>#</th><th>球隊</th><th>晉32強</th><th>16強</th><th>8強</th><th>4強</th><th>決賽</th><th>奪冠</th></tr></thead><tbody>${body}</tbody></table></div>
-    <p class="cbhint" style="margin-top:10px">模擬 ${total.toLocaleString()} 次 · ${new Date().toLocaleString("zh-TW")}。淘汰賽勝者依模型勝率(含 DC)決定、平手按相對強度分配；小組未賽場次以模型抽樣，已賽結果鎖定。最佳第三名席位採規則內近似配對(與 FIFA 官方對照表可能略有出入，對機率影響極小)。本模擬獨立於賽程頁手選的淘汰賽對戰。資料更新後請重新模擬。</p>`;}
-function renderChampions(){}
+  const banner=stale?`<div class="cbverdict warn" style="margin-bottom:12px">⚠ 自上次模擬後<b>資料已變動</b>（比分、DC 或附加），目前機率可能過期，建議按「▶ 開始模擬」重新計算。</div>`:'';
+  $("champ_out").innerHTML=banner+`<div class="tblwrap"><table class="mct"><thead><tr><th>#</th><th>球隊</th><th>晉32強</th><th>16強</th><th>8強</th><th>4強</th><th>決賽</th><th>奪冠</th></tr></thead><tbody>${body}</tbody></table></div>
+    <p class="cbhint" style="margin-top:10px">模擬 ${total.toLocaleString()} 次 · ${new Date().toLocaleString("zh-TW")}。淘汰賽勝者依模型勝率(含 DC)決定、平手按相對強度分配；小組未賽場次以模型抽樣，已賽結果鎖定。最佳第三名席位採規則內近似配對(與 FIFA 官方對照表可能略有出入，對機率影響極小)。本模擬獨立於賽程頁手選的淘汰賽對戰。</p>`;}
+function renderChampions(){if(mcStats)paintChampions(mcStats,mcTotal,mcFingerprint()!==mcStamp);}
 
 function renderActive(){if(activeTab==="fixtures")renderFixtures();else if(activeTab==="standings")renderStandings();else if(activeTab==="power")renderPower();else if(activeTab==="calc")renderCalc();else if(activeTab==="report")renderReport();else if(activeTab==="calib")renderCalib();else if(activeTab==="champ")renderChampions();}
 function switchTab(tab){activeTab=tab;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
