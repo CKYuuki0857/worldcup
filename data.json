@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-06-17T05:04:20.431Z",
+  "savedAt": "2026-06-17T06:38:50.790Z",
   "results": {
     "M1": {
       "hs": {
@@ -571,6 +571,36 @@
       },
       "hg": 3,
       "ag": 0
+    },
+    "M20": {
+      "hs": {
+        "shots": 11,
+        "sot": 4,
+        "poss": 63,
+        "passes": 580,
+        "passpct": 84,
+        "fouls": 12,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 4,
+        "xg": 1.66
+      },
+      "as": {
+        "shots": 11,
+        "sot": 4,
+        "poss": 37,
+        "passes": 331,
+        "passpct": 73,
+        "fouls": 7,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 3,
+        "xg": 0.53
+      },
+      "hg": 3,
+      "ag": 1
     }
   },
   "adj": {
