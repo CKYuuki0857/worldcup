@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-06-20T07:26:38.720Z",
+  "savedAt": "2026-06-21T09:49:54.212Z",
   "results": {
     "M1": {
       "hs": {
@@ -961,6 +961,126 @@
       },
       "hg": 0,
       "ag": 1
+    },
+    "M33": {
+      "hs": {
+        "shots": 10,
+        "sot": 7,
+        "poss": 51,
+        "passes": 449,
+        "passpct": 89,
+        "fouls": 9,
+        "yellow": 0,
+        "red": 0,
+        "offside": 3,
+        "corner": 2,
+        "xg": 2.6
+      },
+      "as": {
+        "shots": 16,
+        "sot": 8,
+        "poss": 49,
+        "passes": 425,
+        "passpct": 85,
+        "fouls": 12,
+        "yellow": 3,
+        "red": 0,
+        "offside": 3,
+        "corner": 5,
+        "xg": 1.01
+      },
+      "hg": 5,
+      "ag": 1
+    },
+    "M34": {
+      "hs": {
+        "shots": 16,
+        "sot": 7,
+        "poss": 59,
+        "passes": 624,
+        "passpct": 89,
+        "fouls": 5,
+        "yellow": 0,
+        "red": 0,
+        "offside": 0,
+        "corner": 8,
+        "xg": 1.89
+      },
+      "as": {
+        "shots": 9,
+        "sot": 2,
+        "poss": 41,
+        "passes": 431,
+        "passpct": 85,
+        "fouls": 7,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 3,
+        "xg": 1.22
+      },
+      "hg": 2,
+      "ag": 1
+    },
+    "M35": {
+      "hs": {
+        "shots": 27,
+        "sot": 15,
+        "poss": 75,
+        "passes": 645,
+        "passpct": 90,
+        "fouls": 7,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 9,
+        "xg": 3.05
+      },
+      "as": {
+        "shots": 10,
+        "sot": 3,
+        "poss": 25,
+        "passes": 226,
+        "passpct": 70,
+        "fouls": 10,
+        "yellow": 5,
+        "red": 0,
+        "offside": 2,
+        "corner": 0,
+        "xg": 0.48
+      },
+      "hg": 0,
+      "ag": 0
+    },
+    "M36": {
+      "hs": {
+        "shots": 2,
+        "sot": 0,
+        "poss": 38,
+        "passes": 354,
+        "passpct": 80,
+        "fouls": 8,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 3,
+        "xg": 0.04
+      },
+      "as": {
+        "shots": 11,
+        "sot": 5,
+        "poss": 62,
+        "passes": 583,
+        "passpct": 89,
+        "fouls": 15,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 5,
+        "xg": 2.13
+      },
+      "hg": 0,
+      "ag": 4
     }
   },
   "adj": {
