@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-06-25T04:17:10.997Z",
+  "savedAt": "2026-06-26T06:28:15.469Z",
   "results": {
     "M1": {
       "hs": {
@@ -1621,6 +1621,186 @@
       },
       "hg": 0,
       "ag": 3
+    },
+    "M56": {
+      "hs": {
+        "shots": 7,
+        "sot": 3,
+        "poss": 39,
+        "passes": 378,
+        "passpct": 83,
+        "fouls": 15,
+        "yellow": 3,
+        "red": 0,
+        "offside": 0,
+        "corner": 3,
+        "xg": 1.27
+      },
+      "as": {
+        "shots": 11,
+        "sot": 3,
+        "poss": 61,
+        "passes": 592,
+        "passpct": 87,
+        "fouls": 10,
+        "yellow": 1,
+        "red": 0,
+        "offside": 0,
+        "corner": 2,
+        "xg": 0.65
+      },
+      "hg": 2,
+      "ag": 1
+    },
+    "M55": {
+      "hs": {
+        "shots": 11,
+        "sot": 2,
+        "poss": 37,
+        "passes": 355,
+        "passpct": 83,
+        "fouls": 11,
+        "yellow": 2,
+        "red": 0,
+        "offside": 2,
+        "corner": 4,
+        "xg": 0.5
+      },
+      "as": {
+        "shots": 7,
+        "sot": 3,
+        "poss": 63,
+        "passes": 624,
+        "passpct": 89,
+        "fouls": 6,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 6,
+        "xg": 1.31
+      },
+      "hg": 0,
+      "ag": 2
+    },
+    "M57": {
+      "hs": {
+        "shots": 10,
+        "sot": 4,
+        "poss": 29,
+        "passes": 258,
+        "passpct": 77,
+        "fouls": 11,
+        "yellow": 0,
+        "red": 0,
+        "offside": 2,
+        "corner": 4,
+        "xg": 0.62
+      },
+      "as": {
+        "shots": 20,
+        "sot": 7,
+        "poss": 71,
+        "passes": 647,
+        "passpct": 93,
+        "fouls": 10,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 6,
+        "xg": 1.84
+      },
+      "hg": 1,
+      "ag": 3
+    },
+    "M58": {
+      "hs": {
+        "shots": 8,
+        "sot": 3,
+        "poss": 52,
+        "passes": 445,
+        "passpct": 85,
+        "fouls": 20,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 2,
+        "xg": 1.21
+      },
+      "as": {
+        "shots": 11,
+        "sot": 5,
+        "poss": 48,
+        "passes": 395,
+        "passpct": 79,
+        "fouls": 11,
+        "yellow": 2,
+        "red": 0,
+        "offside": 2,
+        "corner": 8,
+        "xg": 0.64
+      },
+      "hg": 1,
+      "ag": 1
+    },
+    "M59": {
+      "hs": {
+        "shots": 9,
+        "sot": 3,
+        "poss": 47,
+        "passes": 435,
+        "passpct": 77,
+        "fouls": 13,
+        "yellow": 0,
+        "red": 0,
+        "offside": 2,
+        "corner": 2,
+        "xg": 3.2
+      },
+      "as": {
+        "shots": 18,
+        "sot": 7,
+        "poss": 53,
+        "passes": 471,
+        "passpct": 85,
+        "fouls": 13,
+        "yellow": 1,
+        "red": 0,
+        "offside": 5,
+        "corner": 9,
+        "xg": 2.01
+      },
+      "hg": 3,
+      "ag": 2
+    },
+    "M60": {
+      "hs": {
+        "shots": 7,
+        "sot": 2,
+        "poss": 44,
+        "passes": 426,
+        "passpct": 77,
+        "fouls": 9,
+        "yellow": 1,
+        "red": 0,
+        "offside": 0,
+        "corner": 1,
+        "xg": 0.25
+      },
+      "as": {
+        "shots": 12,
+        "sot": 5,
+        "poss": 56,
+        "passes": 537,
+        "passpct": 82,
+        "fouls": 6,
+        "yellow": 1,
+        "red": 0,
+        "offside": 0,
+        "corner": 3,
+        "xg": 0.57
+      },
+      "hg": 0,
+      "ag": 0
     }
   },
   "adj": {
