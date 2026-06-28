@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-06-27T09:26:53.021Z",
+  "savedAt": "2026-06-28T07:14:30.171Z",
   "results": {
     "M1": {
       "hs": {
@@ -1981,6 +1981,186 @@
       },
       "hg": 1,
       "ag": 1
+    },
+    "M67": {
+      "hs": {
+        "shots": 13,
+        "sot": 2,
+        "poss": 33,
+        "passes": 268,
+        "passpct": 75,
+        "fouls": 16,
+        "yellow": 2,
+        "red": 0,
+        "offside": 4,
+        "corner": 3,
+        "xg": 0.66
+      },
+      "as": {
+        "shots": 17,
+        "sot": 6,
+        "poss": 67,
+        "passes": 558,
+        "passpct": 88,
+        "fouls": 13,
+        "yellow": 1,
+        "red": 0,
+        "offside": 4,
+        "corner": 7,
+        "xg": 1.57
+      },
+      "hg": 0,
+      "ag": 2
+    },
+    "M68": {
+      "hs": {
+        "shots": 8,
+        "sot": 4,
+        "poss": 53,
+        "passes": 523,
+        "passpct": 91,
+        "fouls": 9,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 3,
+        "xg": 0.42
+      },
+      "as": {
+        "shots": 6,
+        "sot": 1,
+        "poss": 47,
+        "passes": 455,
+        "passpct": 88,
+        "fouls": 13,
+        "yellow": 1,
+        "red": 0,
+        "offside": 2,
+        "corner": 2,
+        "xg": 0.64
+      },
+      "hg": 2,
+      "ag": 1
+    },
+    "M69": {
+      "hs": {
+        "shots": 24,
+        "sot": 6,
+        "poss": 55,
+        "passes": 544,
+        "passpct": 89,
+        "fouls": 12,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 5,
+        "xg": 1.7
+      },
+      "as": {
+        "shots": 13,
+        "sot": 2,
+        "poss": 45,
+        "passes": 446,
+        "passpct": 91,
+        "fouls": 6,
+        "yellow": 0,
+        "red": 0,
+        "offside": 2,
+        "corner": 2,
+        "xg": 0.92
+      },
+      "hg": 0,
+      "ag": 0
+    },
+    "M70": {
+      "hs": {
+        "shots": 19,
+        "sot": 4,
+        "poss": 58,
+        "passes": 485,
+        "passpct": 82,
+        "fouls": 6,
+        "yellow": 3,
+        "red": 0,
+        "offside": 3,
+        "corner": 2,
+        "xg": 2.17
+      },
+      "as": {
+        "shots": 3,
+        "sot": 1,
+        "poss": 42,
+        "passes": 355,
+        "passpct": 76,
+        "fouls": 16,
+        "yellow": 2,
+        "red": 0,
+        "offside": 1,
+        "corner": 4,
+        "xg": 0.2
+      },
+      "hg": 3,
+      "ag": 1
+    },
+    "M71": {
+      "hs": {
+        "shots": 12,
+        "sot": 5,
+        "poss": 65,
+        "passes": 754,
+        "passpct": 94,
+        "fouls": 3,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 0,
+        "xg": 1.67
+      },
+      "as": {
+        "shots": 10,
+        "sot": 3,
+        "poss": 35,
+        "passes": 396,
+        "passpct": 87,
+        "fouls": 7,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 3,
+        "xg": 1.49
+      },
+      "hg": 3,
+      "ag": 3
+    },
+    "M72": {
+      "hs": {
+        "shots": 5,
+        "sot": 1,
+        "poss": 27,
+        "passes": 285,
+        "passpct": 80,
+        "fouls": 13,
+        "yellow": 3,
+        "red": 0,
+        "offside": 1,
+        "corner": 2,
+        "xg": 0.76
+      },
+      "as": {
+        "shots": 12,
+        "sot": 4,
+        "poss": 73,
+        "passes": 801,
+        "passpct": 92,
+        "fouls": 7,
+        "yellow": 0,
+        "red": 0,
+        "offside": 3,
+        "corner": 6,
+        "xg": 2.13
+      },
+      "hg": 1,
+      "ag": 3
     }
   },
   "adj": {
@@ -1995,7 +2175,48 @@
     "巴西": 0,
     "摩洛哥": 0
   },
-  "kot": {},
+  "kot": {
+    "73": {
+      "h": "南非",
+      "a": "加拿大"
+    },
+    "74": {
+      "h": "德國",
+      "a": ""
+    },
+    "75": {
+      "h": "荷蘭",
+      "a": "摩洛哥"
+    },
+    "76": {
+      "h": "巴西",
+      "a": "日本"
+    },
+    "78": {
+      "h": "象牙海岸",
+      "a": ""
+    },
+    "79": {
+      "h": "墨西哥",
+      "a": ""
+    },
+    "81": {
+      "h": "美國",
+      "a": "波赫"
+    },
+    "85": {
+      "h": "瑞士",
+      "a": ""
+    },
+    "86": {
+      "h": "阿根廷",
+      "a": ""
+    },
+    "88": {
+      "h": "澳洲",
+      "a": ""
+    }
+  },
   "dc": true,
   "rho": -0.08,
   "alpha": 0.13
