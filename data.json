@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-07-02T13:02:31.575Z",
+  "savedAt": "2026-07-03T06:09:15.342Z",
   "results": {
     "M1": {
       "hs": {
@@ -2461,6 +2461,96 @@
       },
       "hg": 2,
       "ag": 0
+    },
+    "M84": {
+      "hs": {
+        "shots": 23,
+        "sot": 10,
+        "poss": 64,
+        "passes": 629,
+        "passpct": 91,
+        "fouls": 8,
+        "yellow": 0,
+        "red": 0,
+        "offside": 2,
+        "corner": 9,
+        "xg": 2.8
+      },
+      "as": {
+        "shots": 5,
+        "sot": 0,
+        "poss": 36,
+        "passes": 347,
+        "passpct": 82,
+        "fouls": 15,
+        "yellow": 1,
+        "red": 0,
+        "offside": 5,
+        "corner": 0,
+        "xg": 0.32
+      },
+      "hg": 3,
+      "ag": 0
+    },
+    "M83": {
+      "hs": {
+        "shots": 15,
+        "sot": 3,
+        "poss": 60,
+        "passes": 585,
+        "passpct": 91,
+        "fouls": 6,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 9,
+        "xg": 2.2
+      },
+      "as": {
+        "shots": 13,
+        "sot": 6,
+        "poss": 40,
+        "passes": 370,
+        "passpct": 84,
+        "fouls": 12,
+        "yellow": 2,
+        "red": 0,
+        "offside": 4,
+        "corner": 5,
+        "xg": 1.34
+      },
+      "hg": 2,
+      "ag": 1
+    },
+    "M85": {
+      "hs": {
+        "shots": 11,
+        "sot": 5,
+        "poss": 45,
+        "passes": 438,
+        "passpct": 81,
+        "fouls": 10,
+        "yellow": 0,
+        "red": 0,
+        "offside": 0,
+        "corner": 4,
+        "xg": 2.52
+      },
+      "as": {
+        "shots": 8,
+        "sot": 2,
+        "poss": 55,
+        "passes": 561,
+        "passpct": 85,
+        "fouls": 12,
+        "yellow": 2,
+        "red": 0,
+        "offside": 2,
+        "corner": 2,
+        "xg": 0.74
+      },
+      "hg": 2,
+      "ag": 0
     }
   },
   "adj": {
@@ -2539,6 +2629,22 @@
     "88": {
       "h": "澳洲",
       "a": "埃及"
+    },
+    "89": {
+      "h": "巴拉圭",
+      "a": "法國"
+    },
+    "90": {
+      "h": "加拿大",
+      "a": "摩洛哥"
+    },
+    "91": {
+      "h": "巴西",
+      "a": "挪威"
+    },
+    "92": {
+      "h": "墨西哥",
+      "a": ""
     }
   },
   "dc": true,
