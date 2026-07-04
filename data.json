@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-07-03T06:09:15.342Z",
+  "savedAt": "2026-07-04T12:26:30.951Z",
   "results": {
     "M1": {
       "hs": {
@@ -2551,6 +2551,96 @@
       },
       "hg": 2,
       "ag": 0
+    },
+    "M88": {
+      "hs": {
+        "shots": 16,
+        "sot": 1,
+        "poss": 42,
+        "passes": 505,
+        "passpct": 80,
+        "fouls": 12,
+        "yellow": 0,
+        "red": 0,
+        "offside": 0,
+        "corner": 4,
+        "xg": 0.84
+      },
+      "as": {
+        "shots": 14,
+        "sot": 3,
+        "poss": 58,
+        "passes": 722,
+        "passpct": 85,
+        "fouls": 14,
+        "yellow": 2,
+        "red": 0,
+        "offside": 3,
+        "corner": 7,
+        "xg": 1.33
+      },
+      "hg": 1,
+      "ag": 1
+    },
+    "M86": {
+      "hs": {
+        "shots": 22,
+        "sot": 10,
+        "poss": 64,
+        "passes": 850,
+        "passpct": 92,
+        "fouls": 13,
+        "yellow": 1,
+        "red": 0,
+        "offside": 3,
+        "corner": 8,
+        "xg": 2.26
+      },
+      "as": {
+        "shots": 16,
+        "sot": 5,
+        "poss": 36,
+        "passes": 476,
+        "passpct": 86,
+        "fouls": 12,
+        "yellow": 1,
+        "red": 0,
+        "offside": 2,
+        "corner": 8,
+        "xg": 0.47
+      },
+      "hg": 3,
+      "ag": 2
+    },
+    "M87": {
+      "hs": {
+        "shots": 20,
+        "sot": 8,
+        "poss": 61,
+        "passes": 586,
+        "passpct": 91,
+        "fouls": 14,
+        "yellow": 2,
+        "red": 0,
+        "offside": 2,
+        "corner": 3,
+        "xg": 2.04
+      },
+      "as": {
+        "shots": 8,
+        "sot": 0,
+        "poss": 39,
+        "passes": 376,
+        "passpct": 83,
+        "fouls": 10,
+        "yellow": 3,
+        "red": 0,
+        "offside": 0,
+        "corner": 2,
+        "xg": 0.27
+      },
+      "hg": 1,
+      "ag": 0
     }
   },
   "adj": {
@@ -2644,7 +2734,7 @@
     },
     "92": {
       "h": "墨西哥",
-      "a": ""
+      "a": "英格蘭"
     }
   },
   "dc": true,
