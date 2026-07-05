@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-07-04T12:26:30.951Z",
+  "savedAt": "2026-07-05T01:11:32.024Z",
   "results": {
     "M1": {
       "hs": {
@@ -2641,6 +2641,66 @@
       },
       "hg": 1,
       "ag": 0
+    },
+    "M90": {
+      "hs": {
+        "shots": 10,
+        "sot": 3,
+        "poss": 45,
+        "passes": 359,
+        "passpct": 76,
+        "fouls": 24,
+        "yellow": 4,
+        "red": 0,
+        "offside": 2,
+        "corner": 11,
+        "xg": 0.84
+      },
+      "as": {
+        "shots": 5,
+        "sot": 4,
+        "poss": 55,
+        "passes": 473,
+        "passpct": 82,
+        "fouls": 14,
+        "yellow": 4,
+        "red": 0,
+        "offside": 3,
+        "corner": 1,
+        "xg": 0.82
+      },
+      "hg": 0,
+      "ag": 3
+    },
+    "M89": {
+      "hs": {
+        "shots": 5,
+        "sot": 0,
+        "poss": 24,
+        "passes": 183,
+        "passpct": 54,
+        "fouls": 13,
+        "yellow": 0,
+        "red": 0,
+        "offside": 0,
+        "corner": 2,
+        "xg": 0.15
+      },
+      "as": {
+        "shots": 15,
+        "sot": 5,
+        "poss": 76,
+        "passes": 569,
+        "passpct": 90,
+        "fouls": 11,
+        "yellow": 3,
+        "red": 0,
+        "offside": 0,
+        "corner": 12,
+        "xg": 1.37
+      },
+      "hg": 0,
+      "ag": 1
     }
   },
   "adj": {
@@ -2735,6 +2795,22 @@
     "92": {
       "h": "墨西哥",
       "a": "英格蘭"
+    },
+    "93": {
+      "h": "葡萄牙",
+      "a": "西班牙"
+    },
+    "94": {
+      "h": "美國",
+      "a": "比利時"
+    },
+    "95": {
+      "h": "阿根廷",
+      "a": "埃及"
+    },
+    "96": {
+      "h": "瑞士",
+      "a": "哥倫比亞"
     }
   },
   "dc": true,
