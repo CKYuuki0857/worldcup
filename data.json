@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-07-05T01:11:32.024Z",
+  "savedAt": "2026-07-06T10:16:41.856Z",
   "results": {
     "M1": {
       "hs": {
@@ -2701,6 +2701,66 @@
       },
       "hg": 0,
       "ag": 1
+    },
+    "M91": {
+      "hs": {
+        "shots": 14,
+        "sot": 4,
+        "poss": 34,
+        "passes": 331,
+        "passpct": 84,
+        "fouls": 7,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 5,
+        "xg": 2.62
+      },
+      "as": {
+        "shots": 9,
+        "sot": 5,
+        "poss": 66,
+        "passes": 681,
+        "passpct": 91,
+        "fouls": 6,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 5,
+        "xg": 1.06
+      },
+      "hg": 1,
+      "ag": 2
+    },
+    "M92": {
+      "hs": {
+        "shots": 20,
+        "sot": 5,
+        "poss": 67,
+        "passes": 453,
+        "passpct": 92,
+        "fouls": 14,
+        "yellow": 2,
+        "red": 0,
+        "offside": 1,
+        "corner": 12,
+        "xg": 1.88
+      },
+      "as": {
+        "shots": 6,
+        "sot": 5,
+        "poss": 33,
+        "passes": 244,
+        "passpct": 80,
+        "fouls": 7,
+        "yellow": 4,
+        "red": 1,
+        "offside": 0,
+        "corner": 2,
+        "xg": 1.61
+      },
+      "hg": 2,
+      "ag": 3
     }
   },
   "adj": {
@@ -2811,6 +2871,14 @@
     "96": {
       "h": "瑞士",
       "a": "哥倫比亞"
+    },
+    "97": {
+      "h": "法國",
+      "a": "摩洛哥"
+    },
+    "99": {
+      "h": "挪威",
+      "a": "英格蘭"
     }
   },
   "dc": true,
