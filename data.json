@@ -1,6 +1,6 @@
 {
   "v": 2,
-  "savedAt": "2026-07-06T10:16:41.856Z",
+  "savedAt": "2026-07-08T02:06:53.549Z",
   "results": {
     "M1": {
       "hs": {
@@ -2761,6 +2761,126 @@
       },
       "hg": 2,
       "ag": 3
+    },
+    "M93": {
+      "hs": {
+        "shots": 10,
+        "sot": 2,
+        "poss": 45,
+        "passes": 427,
+        "passpct": 84,
+        "fouls": 9,
+        "yellow": 2,
+        "red": 0,
+        "offside": 2,
+        "corner": 3,
+        "xg": 0.63
+      },
+      "as": {
+        "shots": 15,
+        "sot": 6,
+        "poss": 55,
+        "passes": 530,
+        "passpct": 88,
+        "fouls": 13,
+        "yellow": 1,
+        "red": 0,
+        "offside": 1,
+        "corner": 7,
+        "xg": 1.68
+      },
+      "hg": 0,
+      "ag": 1
+    },
+    "M94": {
+      "hs": {
+        "shots": 7,
+        "sot": 2,
+        "poss": 56,
+        "passes": 527,
+        "passpct": 87,
+        "fouls": 11,
+        "yellow": 2,
+        "red": 0,
+        "offside": 0,
+        "corner": 3,
+        "xg": 0.63
+      },
+      "as": {
+        "shots": 15,
+        "sot": 7,
+        "poss": 44,
+        "passes": 414,
+        "passpct": 81,
+        "fouls": 9,
+        "yellow": 0,
+        "red": 0,
+        "offside": 1,
+        "corner": 5,
+        "xg": 2.01
+      },
+      "hg": 1,
+      "ag": 4
+    },
+    "M95": {
+      "hs": {
+        "shots": 19,
+        "sot": 7,
+        "poss": 64,
+        "passes": 602,
+        "passpct": 90,
+        "fouls": 13,
+        "yellow": 0,
+        "red": 0,
+        "offside": 3,
+        "corner": 6,
+        "xg": 2.84
+      },
+      "as": {
+        "shots": 5,
+        "sot": 2,
+        "poss": 36,
+        "passes": 349,
+        "passpct": 82,
+        "fouls": 11,
+        "yellow": 5,
+        "red": 0,
+        "offside": 0,
+        "corner": 1,
+        "xg": 0.89
+      },
+      "hg": 3,
+      "ag": 2
+    },
+    "M96": {
+      "hs": {
+        "shots": 7,
+        "sot": 2,
+        "poss": 53,
+        "passes": 626,
+        "passpct": 87,
+        "fouls": 22,
+        "yellow": 3,
+        "red": 0,
+        "offside": 5,
+        "corner": 3,
+        "xg": 0.35
+      },
+      "as": {
+        "shots": 15,
+        "sot": 3,
+        "poss": 47,
+        "passes": 548,
+        "passpct": 83,
+        "fouls": 21,
+        "yellow": 2,
+        "red": 0,
+        "offside": 4,
+        "corner": 7,
+        "xg": 1.03
+      },
+      "hg": 0,
+      "ag": 0
     }
   },
   "adj": {
@@ -2876,9 +2996,17 @@
       "h": "法國",
       "a": "摩洛哥"
     },
+    "98": {
+      "h": "西班牙",
+      "a": "比利時"
+    },
     "99": {
       "h": "挪威",
       "a": "英格蘭"
+    },
+    "100": {
+      "h": "阿根廷",
+      "a": "瑞士"
     }
   },
   "dc": true,
